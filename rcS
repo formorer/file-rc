@@ -1,0 +1,129 @@
+#! /bin/sh
+#
+#   rcS - Help to boot the system into single user mode
+#   Copyright (c) 1998  Martin Schulze <joey@debian.org>
+#                 1998  Winfried Trümper <winni@xpilot.org>
+#                 1998  Miquel van Smoorenburg <miquels@cistron.nl>
+#            1999-2000  Roland Rosenfeld <roland@spinnaker.de>
+#
+#   $Id: rcS,v 1.12 2006-07-03 16:02:10 roland Exp $
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+#   Ideas taken from rcS as provided by the sysvinit package and from
+#   the file-rc /etc/init.d/rc program
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+runlevel=S
+prevlevel=N
+umask 022
+export PATH runlevel prevlevel
+
+CFGFILE="/etc/runlevel.conf"
+BAKCFG="/etc/runlevel.fallback"
+
+#
+#	See if system needs to be setup. This is ONLY meant to
+#	be used for the initial setup after a fresh installation!
+#
+if [ -x /sbin/unconfigured.sh ]
+then
+  /sbin/unconfigured.sh
+fi
+
+#
+#	Source defaults.
+#
+. /etc/default/rcS
+export VERBOSE
+
+#
+#	Trap CTRL-C &c only in this shell so we can interrupt subprocesses.
+#
+trap ":" INT QUIT TSTP
+
+element() {
+    element="$1"
+	
+    [ "$2" = "in" ] && shift
+    list="$2"
+    [ "$list" = "-" ] && return 1
+    [ "$list" = "*" ] && return 0
+
+    ORGIFS="$IFS"
+    IFS=","
+    set -- $list
+    IFS="$ORGIFS"
+    case $element in
+	"$1" | "$2" | "$3" | "$4" | "$5" | "$6" | "$7" | "$8" | "$9")
+	    return 0
+    esac
+    return 1
+}
+
+CMDLIST="set centerline=here"
+
+#
+# If $CFGFILE isn't available, try the fallback:
+#
+if [ ! -f "$CFGFILE" ]
+then
+    echo "Missing configuration file '$CFGFILE' using fallback config."
+
+    if [ -f "$BAKCFG" ]
+    then
+	CFGFILE="$BAKCFG"
+    else
+	echo "No configuration file at all. You're in serious trouble now."
+	CFGFILE="/dev/null"
+    fi
+fi
+
+# read the file...
+while read  SORT_NO  OFF_LEVELS  ON_LEVELS  CMD  OPTIONS
+do
+    case "$SORT_NO" in
+	\#* | "") continue ;;
+    esac
+    [ ! -f "$CMD" ] && continue
+
+      # continue only if CMD was not started in previous runlevel
+    if element "$runlevel" in "$ON_LEVELS"
+    then
+	# append CMD to the list of
+	case "$CMD" in
+	*.sh)	CMDLIST="$CMDLIST; (set -- start; . $CMD)" ;;
+	*)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD start" ;;
+	esac
+    fi
+
+done < $CFGFILE
+
+# Execute the commands collected above
+(trap - INT QUIT TSTP; sh -c "$CMDLIST")
+
+#
+#	For compatibility, run the files in /etc/rc.boot too.
+#
+[ -d /etc/rc.boot ] && run-parts /etc/rc.boot
+
+#
+#	Finish setup if needed. The comment above about
+#	/sbin/unconfigured.sh applies here as well!
+#
+if [ -x /sbin/setup.sh ]
+then
+  /sbin/setup.sh
+fi

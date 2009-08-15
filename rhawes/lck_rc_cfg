@@ -1,0 +1,31 @@
+#!/bin/bash
+# lck_rc_cfg -- test rc by locking configuration
+# lck_rc_cfg  [ -i ] seconds
+# seconds : how long to lock the configuration
+# 
+# By Richard L. Hawes, rhawes@dma.org
+
+IGN=""
+#LOCKFILE="/var/lock/runlevel.lock"
+LOCKFILE="runlevel.lock"
+trap 'rm -f $LOCKFILE; exit' HUP INT QUIT TSTP TERM
+
+if [ "$1" = "-i" ] ; then
+	IGN="t"
+	echo "$0: process $$ ignoring TERM"
+	trap '' TERM
+	shift
+fi
+
+if [ -z "$1" ] ; then
+	echo "Usage: lck_rc_cfg [ -i ] seconds" >&2
+	exit 1
+fi
+
+echo "$$"> $LOCKFILE
+echo "$0: Process $$ locking config (current directory) for $1 seconds"
+
+i=0
+while { let i+=1; [ $i -lt $1 ] ; } ; do sleep 1 ; done
+
+rm -f $LOCKFILE

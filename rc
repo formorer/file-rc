@@ -1,0 +1,280 @@
+#! /bin/sh
+# This is the file "rc" which starts and stops services for the different
+# runlevels of the SysV init.
+#
+# Author:       Winfried Trümper <winni@xpilot.org>
+# Misc fixes by Tom Lees <tom@lpsg.demon.co.uk>.
+# Misc improvements and code rewrite by Martin Schulze <joey@debian.org>
+# Misc improvements by Roland Rosenfeld <roland@spinnaker.de>
+#
+# $Id: rc,v 1.24 2008-05-01 10:16:33 roland Exp $
+#
+# Unlike traditional implementations it avoids the messy scheme with
+# expressing the setup through links but reads a central config file
+# instead. From a technical point of view both methods are almost
+# equivalent.
+#
+# To be compatible with the common configuration scheme in the Linux-world,
+# every script has two states: "on" or "off". The effect of this is that
+# once it is switched on, it is never started again when the runlevel changes
+# (it is only executed to switch it off if necessary).
+#
+
+# The following section is taken from the original rc with slight
+# modifications.
+
+# Ignore CTRL-C only in this shell, so we can interrupt subprocesses.
+trap ":" INT QUIT TSTP
+
+# Set onlcr to avoid staircase effect.
+stty onlcr 0>&1
+
+debug=0
+if [ "$1" = "-d" ]
+then
+    debug=1
+    shift
+fi
+
+# Is this done because RUNLEVEL and PREVLEVEL could be read-only?
+#
+# Now find out what the current and what the previous runlevel are.
+runlevel=$RUNLEVEL
+  # Get first argument. Set new runlevel to this argument.
+[ "$1" != "" ] && runlevel="$1"
+  # Is this necessary?
+prevlevel=${PREVLEVEL:="N"}
+  # Is this necessary?
+export runlevel previous
+
+CFGFILE="/etc/runlevel.conf"
+BAKCFG="/etc/runlevel.fallback"
+LOCKFILE="/var/lock/runlevel.lock"
+
+true=0
+false=1
+
+valid_min_seq=0
+valid_max_seq=99
+
+[ $debug -eq 1 ] && echo "rc: $prevlevel -> $runlevel"
+  # wait for any lock to vanish (but only when not booting)
+i=0
+while [ -f "$LOCKFILE" ] && [ "$previous" != "N" ]
+do
+    read pid < "$LOCKFILE"
+    if ! kill -s 0 $pid > /dev/null 2>&1
+    then
+	echo "$0: found stale lockfile '$LOCKFILE'. Ignoring it." >&2
+	rm -f "$LOCKFILE"	# external command (does not work on R/O fs)
+        break
+    fi
+    if [ "$i" -gt "60" ]
+    then
+        echo "Process no. '$pid' is locking the configuration database." >&2
+
+	if [ "$runlevel" = "1" -o "$runlevel" = "6" ]
+	then
+	    # Try killing locking process, if booting, rebooting or halting.
+	    echo "Sending TERM signal to $pid." >&2
+	    kill -s 15 $pid
+	    sleep 5
+	    echo "Sending KILL signal to $pid." >&2	
+	    kill -s 9 $pid > /dev/null 2>&1
+	    rm -f "$LOCKFILE"	# external command (does not work on R/O FS)
+	    sleep 5
+	    break
+	else
+	    # Normal runlevel change (not boot, reboot or halt)
+	    echo "Terminating." >&2
+	    exit 1
+	fi
+    fi
+    sleep 2
+    echo -n "."
+    i=$(($i + 1))
+done
+
+
+  # This script is vital so we better keep an old copy of the configuration
+  # file as fallsave-configuration. This does not handle a broken config
+  # file, though.
+if [ ! -f "$CFGFILE" ]
+then
+    echo "Missing configuration file '$CFGFILE' using fallback config."
+
+    if [ ! -f "$BAKCFG" ]
+    then
+	echo "No configuration file at all. You're in serious trouble now."
+	echo "Please try to fix this problem with a root shell and reboot."
+	if [ -f /etc/default/rcS ]
+	then
+	    # Read value of $CONSOLE:
+	    . /etc/default/rcS
+	fi
+	/sbin/sulogin $CONSOLE
+	exit 1
+    fi
+    CFGFILE="$BAKCFG"
+fi
+
+is_valid_sequence() {
+    if [ $# -ne 1 ]
+    then
+	return $false
+    fi
+
+    case $1 in
+    [0-9]|[0-9][0-9]) ;;
+    *) return $false ;;
+    esac
+
+    if [ $1 -ge $valid_min_seq ] && [ $1 -le $valid_max_seq ]
+    then
+	return $true
+    fi
+    return $false
+}
+
+element() {
+    element="$1"
+    case "$element" in
+	reboot | R) element=0 ;;
+	halt   | H) element=6 ;;
+    esac
+	
+    [ "$2" = "in" ] && shift
+    list="$2"
+    [ "$list" = "-" ] && return 1
+    [ "$list" = "*" ] && return 0
+
+    ORGIFS="$IFS"
+    IFS=","
+    set -- $list
+    IFS="$ORGIFS"
+    case $element in
+	"$1" | "$2" | "$3" | "$4" | "$5" | "$6" | "$7" | "$8" | "$9")
+	    return 0
+    esac
+    return 1
+}
+
+is_elem() {
+    elem=$1; shift
+
+    for x in $*
+    do
+	[ "$x" = "$elem" ] && return 0
+    done
+    return 1
+}
+
+# Adds new levels to list of levels of the given command.  The entire
+# list of commands and levels is tested.
+#
+pushlevel() {
+    newcmd=$1;shift
+    newlevels=$1; shift
+    add="$newcmd:$newlevels"
+    outline=""
+
+    for i in $*
+    do
+	cmd=${i%:*}
+	if [ "$cmd" = "$newcmd" ]
+	then
+	    outline="$outline$i,$newlevels "
+	    add=""
+	else
+	    outline="$outline$i "
+	fi
+    done
+    echo "$outline$add"
+}
+
+
+  # CMDLIST ensures scripts are killed in reversed order
+CMDLIST="set centerline=here"
+STARTCMD=""
+STOPCMD=""
+  # Experimental: To tell the scripts they are not called manually.
+  # (should be unset in init.d-scripts)
+CALL_FROM_RC="yes"
+
+[ $debug -eq 1 ] && echo "Reading configuration file $CFGFILE."
+
+case $runlevel in
+0|6)	start=stop; stop=stop;;
+*)	start=start; stop=stop;;
+esac
+
+
+# lock the configuration file
+if [ "$prevlevel" != "N" ] && [ "$runlevel" != "1" ] && [ "$runlevel" != "6" ]
+then
+    (echo "$$" > "$LOCKFILE") || true
+fi
+
+while read  SORT_NO  OFF_LEVELS  ON_LEVELS  CMD  OPTIONS
+do
+    case "$SORT_NO" in
+	\#*|""|\#) continue ;;
+    esac
+    [ ! -f "$CMD" ] && continue
+    is_valid_sequence "$SORT_NO" || continue
+
+    # currently OPTIONS is completely ignored ... we _could_ pass them to the
+    # init-script after "start" or "stop".
+
+    [ "$ON_LEVELS" != "-" ] && element "$runlevel" in "$ON_LEVELS" \
+	&& STARTLIST=`pushlevel $CMD $ON_LEVELS $STARTLIST`
+
+    element "$runlevel" in "$OFF_LEVELS" && STOPLIST="$STOPLIST$CMD "
+
+done < $CFGFILE
+
+# remove lock of configuration file
+if [ "$prevlevel" != "N" ] && [ "$runlevel" != "1" ] && [ "$runlevel" != "6" ]
+then
+    rm -f "$LOCKFILE"
+fi
+
+
+# First, run the KILL scripts.
+for CMD in $STOPLIST
+do
+    if [ "$prevlevel" != "N" ]
+    then
+	case "$CMD" in
+	*.sh)	CMDLIST="$CMDLIST; (set -- $stop; . $CMD)" ;;
+	*)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $stop" ;;
+	esac
+    fi
+done
+
+# Then look at the start scripts
+for comb in $STARTLIST
+do
+    CMD=${comb%:*}
+    if [ "$prevlevel" != "N" ]
+    then
+	level=${comb#*:}
+	if element "$prevlevel" in "$level" && ! is_elem $CMD $STOPLIST
+	then
+	    continue
+	fi
+    fi
+
+    case "$CMD" in
+    *.sh)	CMDLIST="$CMDLIST; (set -- $start; . $CMD)" ;;
+    *)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $start" ;;
+    esac
+done
+
+# Execute the commands collected above
+if [ $debug -eq 1 ]
+then
+    echo "$CMDLIST"
+else
+    (trap - INT QUIT TSTP; sh -c "$CMDLIST")
+fi

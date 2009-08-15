@@ -1,0 +1,238 @@
+.\" Copyright (c) 1999-2006  Roland Rosenfeld <roland@debian.org>
+.\"               
+.\" This manual page is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc.,59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+.\"
+.TH RUNLEVEL.CONF 5 "June 2006" "Debian Project" "Debian GNU/Linux"
+
+
+.SH NAME
+runlevel.conf \- The file-rc runlevel configuration file
+
+
+.SH DESCRIPTION
+.B runlevel.conf
+is the configuration file for the package
+.B file-rc
+an alternative 
+.BR init (8)
+boot concept.  While the SysV init scheme implements runlevels through 
+symlinks in 
+.BI /etc/rc ? .d/*
+,
+.B file-rc
+uses only one file 
+.B runlevel.conf
+to replace all these symlinks.
+.PP
+This file consists of 4 columns separated by TABs or spaces with the
+following contents:
+.IP - 3
+The first column is the sort criteria for starting and stopping
+the scripts.
+.IP - 3
+The second column consists of a comma-separated list of runlevels in
+which the script should be switched `off'
+.I or 
+a single 
+.RB ` - '
+if the script should never be stopped (within that sort-number).
+.IP - 3
+The third column consists of a comma-separated list of runlevels in
+which the script should be switched `on'
+.I or
+a single
+.RB ` - '
+if the script should never be started (with that sort-number).
+.IP - 3
+The last column specifies the full name of the script.
+.PP
+Lines beginning with 
+.RB ` # '
+and empty lines are ignored.
+
+.SS Overview
+All scripts executed by the init system are located in 
+.IR /etc/init.d .
+.P
+If a scripts has the 
+.I ".sh" 
+suffix it is a bourne shell script and MAY be handled in an optimized
+manner.  The behaviour of executing script in an optimized way will
+not differ in any way from it being forked and executed in the regular
+way.
+.P
+The following runlevels are defined:
+.TP
+.B N
+System bootup (NONE).
+.TP
+.B S
+Single user mode (not to be switched to directly)
+.TP
+.B 0
+halt
+.TP
+.B 1
+single user mode
+.TP
+.BR 2 .. 5
+multi user mode
+.TP
+.B 6
+reboot
+
+.SS Boot
+When the systems boots, the lines with 
+.RI ' S '
+in the third column are executed.  It in turn executes all these
+scripts in alphabetical (and thus numerical) order. The
+first argument passed to the executed scripts is 
+.IR start .
+The runlevel at this point is 
+.RI ' N '
+(none).
+.P
+Only things that need to be run once to get the system in a consistent
+state are to be run.  The 
+.RI ' S ' 
+state is NOT meant to replace 
+.IR rc.local .
+One should not start daemons in this runlevel unless absolutely
+necessary. Eg, NFS might need the portmapper, so it is OK to start it
+early in the bootprocess. But this is not the time to start the squid
+proxy server.
+
+.SS "Going multiuser"
+After the 
+.RI ' S '
+scripts have been executed, init switches to the default runlevel as
+specified in 
+.IR /etc/inittab ,
+usually 
+.RI ' 2 '.
+.P
+.BR init (8)
+then executes the 
+.I /etc/init.d/rc
+script which takes care of starting the services with 
+.RI ' 2 '
+in the third column.
+.P
+Because the previous runlevel is 
+.RI ' N '
+(none) the scripts with 
+.RI ' 2 '
+in the second column will NOT be executed - there is nothing to stop
+yet, the system is busy coming up.
+.P
+If for example there is a service that wants to run in runlevel 4
+and ONLY in that level, it will place 
+.RI ' 2,3,5 '
+in the second column to stop the service when switching out of
+runlevel 4.  We do not need to run that script at this point.
+.P
+The scripts will be executed in alphabetical order, with the first
+argument set to 
+.RI ' start '.
+
+.SS "Switching runlevels"
+When one switches from (for example) runlevel 2 to runlevel 3,
+.B /etc/init.d/rc
+will first execute in alphabetical order all scripts with
+.RI ' 3 ' 
+in the second column with 
+.RI ' stop ' 
+as first argument and then all scripts with
+.RI ' 3 '
+in the third column with 
+.RI ' start ' 
+as first argument.
+.P
+As an optimization, a check is made for each "service" to see if it
+was already running in the previous runlevel.  If it was, and there is
+no entry present in the second column for the new runlevel, there is
+no need to start it a second time so that will not be done.
+.P
+On the other hand, if there was an entry in the second column, it is
+assumed the service was stopped on purpose first and so needs to be
+restarted.
+.P
+We MIGHT make the same optimization for stop scripts as well - if no
+entry in the third column was present in the previous runlevel, we can
+assume that service was not running and we don't need to stop it
+either.  In that case we can remove the "coming from level N" special
+case mentioned above.  But right now that has not been implemented.
+
+.SS "Single user mode"
+Switching to single user mode is done by switching to runlevel 1.
+That will cause all services to be stopped (assuming they all have 
+.RI ' 1 '
+in the second column). The runlevel 1 scripts will then switch to
+runlevel 
+.RI ' S '
+which has no scripts - all it does is spawn a shell directly on
+.B /dev/console
+for maintenance.
+
+.SS "Halt/reboot"
+Going to runlevel 0 or 6 will cause the system to be halted or
+rebooted, respectively.  For example, if we go to runlevel 6 (reboot)
+first all scripts with 
+.RI ' 6 '
+in the second column will be executed alphabetically with 
+.RI ' stop ' 
+as the first argument.
+.P
+Then the scripts with 
+.RI ' 6 ' 
+in the third column will be executed alphabetically with 
+.RI ' stop '
+as the first argument as well.  The reason is that there is nothing to
+start anymore at this point - all scripts that are run are meant to
+bring the system down.
+
+
+.SH EXAMPLES
+.nf
+#<sort> <off>   <on>            <script>
+05      -       0               /etc/init.d/halt
+05      -       1               /etc/init.d/single
+05      -       6               /etc/init.d/reboot
+10      0,1,6   2,3,4,5         /etc/init.d/sysklogd
+12      0,1,6   2,3,4,5         /etc/init.d/kerneld
+[...]
+89      0,1,6   2,3,4,5         /etc/init.d/cron
+99      -       2,3,4,5         /etc/init.d/rmnologin
+99      0,1,6   2,3,4,5         /etc/init.d/xdm
+.fi
+
+
+.SH FILES
+/etc/runlevel.conf
+
+
+.SH AUTHOR
+.B file-rc
+was originally written by Winfried Tr\[:u]mper <winni@xpilot.org> and
+adapted to the Debian system by Tom Lees <tom@lpsg.demon.co.uk>,
+Martin Schulze <joey@debian.org> and Roland Rosenfeld
+<roland@debian.org>.
+.PP
+This man page was written by Roland Rosenfeld <roland@debian.org>.
+
+
+.SH "SEE ALSO"
+.BR init (8)
+

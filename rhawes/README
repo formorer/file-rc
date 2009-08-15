@@ -1,0 +1,29 @@
+
+#
+README -- readme for rc/rcS replacement scripts for file-rc
+$Id: README,v 1.1 1999/11/20 14:10:42 hr Exp $
+by Richard L. Hawes <rhawes@dma.org>
+
+Motivation
+
+`file-rc' does a lot of work every time it runs.  It seems that part
+of it can be done ahead of time and saved in a cache file to save time.
+Unfortunately, the current version takes a while to make the cache file.
+
+Also, optimization of start and stop commands is inhibited when the
+config file is changed.  This makes sure that the runlevels will have
+the correct runlevel configuration.
+
+new versions of programs and test scripts that make it easy to test
+configuration lockfile handling which are in an tar - gzip'ed file at:
+
+http://www.dma.org/~rhawes/programs/rc.tgz
+
+--
+
+Richard L. Hawes
+
+email: rhawes@dma.org	 web:  http://www.dma.org/~rhawes
+
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+

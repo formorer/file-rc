@@ -1,0 +1,47 @@
+#!/bin/sh
+
+LASTCMD=''
+OUT=''
+
+sort +3 /etc/runlevel.conf |\
+while read LINE
+do
+    case $LINE in
+	\#* | "" )
+	    continue
+	    ;;
+    esac
+    set -- $LINE
+    SORT_NO="$1"; STOP="$2"; START="$3"; CMD="$4"
+    if [ "$CMD" != "$LASTCMD" ]
+    then
+	if [ "$OUT" != "" ]
+	then
+	    echo "$OUT"
+	fi
+	OUT="${CMD#/etc/init.d/}"
+    fi
+    OLDIFS="$IFS"
+    IFS=","
+    if [ "$START" != "-" ]
+    then
+	OUT="$OUT start $SORT_NO"
+	for i in $START
+	do
+	    OUT="$OUT $i"
+	done
+	OUT="$OUT ."
+    fi
+    if [ "$STOP" != "-" ]
+    then
+	OUT="$OUT stop $SORT_NO"
+	for i in $STOP
+	do
+	    OUT="$OUT $i"
+	done
+	OUT="$OUT ."
+    fi
+    IFS="$OLDIFS"
+    LASTCMD="$CMD"
+done
+    

@@ -1,0 +1,2207 @@
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at submit) by bugs.debian.org; 23 Dec 1998 08:01:33 +0000
+Received: (qmail 3388 invoked from network); 23 Dec 1998 08:01:31 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 23 Dec 1998 08:01:30 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id DAA25648
+	for <submit@bugs.debian.org>; Wed, 23 Dec 1998 03:01:26 -0500 (EST)
+Received: from dayoh-a215.gemair.com(209.115.69.215) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma025393; Wed, 23 Dec 98 03:01:13 -0500
+Sender: rh@rcinet.com
+Message-ID: <3680A350.C1FB6068@gemair.com>
+Date: Wed, 23 Dec 1998 08:01:20 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: bugs <submit@bugs.debian.org>
+Subject: file-rc: startup to level 2+ fails
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Package: file-rc
+Version: 0.4.3
+
+
+
+-- System Information
+Debian Release: 2.0
+Kernel Version: Linux debian 2.0.34 #2 Thu Jul 9 10:57:48 EST 1998 i586
+unknown
+
+Versions of the packages file-rc depends on:
+hi  sysvinit        2.75-3         System-V like init.
+
+--  the rc for /etc/runlevel.conf is buggy.   It fails to run the
+default level
+on startup, and it also starts all programs
+regardless what program was started in the previous level.
+
+--
+Richard Hawes
+email: rhawes@dma.org
+
+Here is my fix for it:  (I rewrote rc)
+
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.2).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the `!/bin/sh' line above, then type `sh FILE'.
+#
+# Made on 1998-12-23 02:53 EST by <rh@debian>.
+# Source directory was `/home/rh'.
+#
+# Existing files will *not* be overwritten unless `-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#   3741 -rwxr-x--- rc
+#
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=FAILED
+locale_dir=FAILED
+first_param="$1"
+for dir in $PATH
+do
+  if test "$gettext_dir" = FAILED && test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    set `$dir/gettext --version 2>&1`
+    if test "$3" = GNU
+    then
+      gettext_dir=$dir
+    fi
+  fi
+  if test "$locale_dir" = FAILED && test -f $dir/shar \
+     && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
+  then
+    locale_dir=`$dir/shar --print-text-domain-dir`
+  fi
+done
+IFS="$save_IFS"
+if test "$locale_dir" = FAILED || test "$gettext_dir" = FAILED
+then
+  echo=echo
+else
+  TEXTDOMAINDIR=$locale_dir
+  export TEXTDOMAINDIR
+  TEXTDOMAIN=sharutils
+  export TEXTDOMAIN
+  echo="$gettext_dir/gettext -s"
+fi
+touch -am 1231235999 $$.touch >/dev/null 2>&1
+if test ! -f 1231235999 && test -f $$.touch; then
+  shar_touch=touch
+else
+  shar_touch=:
+  echo
+  $echo 'WARNING: not restoring timestamps.  Consider getting and'
+  $echo "installing GNU \`touch', distributed in GNU File Utilities..."
+  echo
+fi
+rm -f 1231235999 $$.touch
+#
+if mkdir _sh05272; then
+  $echo 'x -' 'creating lock directory'
+else
+  $echo 'failed to create lock directory'
+  exit 1
+fi
+# ============= rc ==============
+if test -f 'rc' && test "$first_param" != -c; then
+  $echo 'x -' SKIPPING 'rc' '(file already exists)'
+else
+  $echo 'x -' extracting 'rc' '(binary)'
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 rc
+M(R$O8FEN+V)A<V@*(R!4:&ES(&ES('1H92!F:6QE(")R8R(@=VAI8V@@<W1A
+M<G1S(&%N9"!S=&]P<R!S97)V:6-E<R!F;W(@=&AE(&1I9F9E<F5N=`HC(')U
+M;FQE=F5L<R!O9B!T:&4@4WES5B!I;FET+@HC"B,@075T:&]R.B`@("`@("!7
+M:6YF<FEE9"!4<OQM<&5R(#QW:6YN:4!X<&EL;W0N;W)G/@HC(%9E<G-I;VXZ
+M("`@("`@,"XR"B,*(R!-:7-C(&9I>&5S(&)Y(%1O;2!,965S(#QT;VU`;'!S
+M9RYD96UO;BYC;RYU:SXN"B,@36ES8R!I;7!R;W9E;65N=',@86YD(&-O9&4@
+M<F5W<FET92!B>2!-87)T:6X@4V-H=6QZ92`\:F]E>4!D96)I86XN;W)G/@HC
+M($UI<V,@9FEX97,L(&EM<')O=F5M96YT<R!A;F0@;6%J;W(@8V]D92!R97=R
+M:71E"B,)(R!7;W)K<R!W:71H($1E8FEA;B!N;W<L(%-T87)T=7`@=&\@;&5V
+M96P@/B`Q(&YO=R!W;W)K<PHC"2,@3VYL>2!S=&%R=',@<')O9W)A;7,@;F]T
+M('-T87)T960@;VX@<')E=FEO=7,@;&5V96P*(PDC($9A<W1E<B!A;F0@4VEM
+M<&QE<@HC"2,@8GD@4FEC:&%R9"!(87=E<R`\<FAA=V5S0&1M82YO<F<^"B,*
+M(R!5;FQI:V4@=')A9&ET:6]N86P@:6UP;&5M96YT871I;VYS(&ET(&%V;VED
+M<R!T:&4@;65S<WD@<V-H96UE('=I=&@*(R!E>'!R97-S:6YG('1H92!S971U
+M<"!T:')O=6=H(&QI;FMS(&)U="!R96%D<R!A(&-E;G1R86P@8V]N9FEG(&9I
+M;&4*(R!I;G-T96%D+B!&<F]M(&$@=&5C:&YI8V%L('!O:6YT(&]F('9I97<@
+M8F]T:"!M971H;V1S(&%R92!A;&UO<W0*(R!E<75I=F%L96YT+@HC"B,@5&\@
+M8F4@8V]M<&%T:6)L92!W:71H('1H92!C;VUM;VX@8V]N9FEG=7)A=&EO;B!S
+M8VAE;64@:6X@=&AE($QI;G5X+7=O<FQD+`HC(&5V97)Y('-C<FEP="!H87,@
+M='=O('-T871E<SH@(F]N(B!O<B`B;V9F(BX@5&AE(&5F9F5C="!O9B!T:&ES
+M(&ES('1H870*(R!O;F-E(&ET(&ES('-W:71C:&5D(&]N+"!I="!I<R!N979E
+M<B!S=&%R=&5D(&%G86EN('=H96X@=&AE(')U;FQE=F5L(&-H86YG97,*(R`H
+M:70@:7,@;VYL>2!E>&5C=71E9"!T;R!S=VET8V@@:70@;V9F(&EF(&YE8V5S
+M<V%R>2DN"B,*"B,@5&AE(&9O;&QO=VEN9R!S96-T:6]N(&ES('1A:V5N(&9R
+M;VT@=&AE(&]R:6=I;F%L(')C('=I=&@@<VQI9VAT"B,@;6]D:69I8V%T:6]N
+M<RX*"B,@26=N;W)E($-44DPM0R!O;FQY(&EN('1H:7,@<VAE;&PL('-O('=E
+M(&-A;B!I;G1E<G)U<'0@<W5B<')O8V5S<V5S+@IT<F%P("(Z(B!)3E0@455)
+M5"!44U10"@HC(%-E="!O;FQC<B!T;R!A=F]I9"!S=&%I<F-A<V4@969F96-T
+M+@IS='1Y(&]N;&-R(#`^)C$*"G-E="`M:`H*9&5B=6<](B(*:68@6R`B)#$B
+M(#T@(BUD(B!="G1H96X*("`@(&1E8G5G/65C:&\*("`@('-E="`M975X"B`@
+M("!S:&EF=`IF:0H*(PHC(%-T87)T('-C<FEP="!O<B!P<F]G<F%M+@HC"E-T
+M87)T=7`H*2!["B`@8V%S92`B)#$B(&EN"B`@("`@("`@*BYS:"D*("`@("`@
+M("`@("`@("`@("1D96)U9R!S:"`B)$`B"B`@("`@("`@("`@("`@("`[.PH@
+M("`@("`@("HI"B`@("`@("`@("`@("`@("`D9&5B=6<@(B1`(@H@("`@("`@
+M("`@("`@("`@.SL*("!E<V%C"GT*"B,@27,@=&AI<R!D;VYE(&)E8V%U<V4@
+M4E5.3$5614P@86YD(%!2159,159%3"!C;W5L9"!B92!R96%D+6]N;'D_"B,*
+M(R!.;W<@9FEN9"!O=70@=VAA="!T:&4@8W5R<F5N="!A;F0@=VAA="!T:&4@
+M<')E=FEO=7,@<G5N;&5V96P@87)E+@IR=6YL979E;#TD>U)53DQ%5D5,+3%]
+M"B`@(R!'970@9FER<W0@87)G=6UE;G0N(%-E="!N97<@<G5N;&5V96P@=&\@
+M=&AI<R!A<F=U;65N="X*6R`B)#$B("$]("(B(%T@)B8@<G5N;&5V96P](B0Q
+M(@IP<F5V;&5V96P])'M04D563$5614PZ/2).(GT*("`C($ES('1H:7,@;F5C
+M97-S87)Y/PHC97AP;W)T(')U;FQE=F5L('!R979I;W5S"@I#1D=&24Q%/2(O
+M971C+W)U;FQE=F5L+F-O;F8B"D)!2T-&1STB+V5T8R]R=6YL979E;"YF86QL
+M8F%C:R(*"B`@(R!4:&ES('-C<FEP="!I<R!V:71A;"!S;R!W92!B971T97(@
+M:V5E<"!A;B!O;&0@8V]P>2!O9B!T:&4@8V]N9FEG=7)A=&EO;@H@(",@9FEL
+M92!A<R!F86QL<V%V92UC;VYF:6=U<F%T:6]N+B!4:&ES(&1O97,@;F]T(&AA
+M;F1L92!A(&)R;VME;B!C;VYF:6<*("`C(&9I;&4L('1H;W5G:"X*:68@6R`A
+M("UF("(D0T9'1DE,12(@70IT:&5N"B`@("!E8VAO(")-:7-S:6YG(&-O;F9I
+M9W5R871I;VX@9FEL92`G)$-&1T9)3$4G('5S:6YG(&9A;&QB86-K(&-O;F9I
+M9RXB"@H@("`@("`C(%1H:7,@8V]U;&0@8F4@82!L:6YK('1O("]V87(O8F%C
+M:W5P+W)U;FQE=F5L+F-O;F8N"B`@("!I9B!;("$@+68@(B1"04M#1D<B(%T*
+M("`@('1H96X*"65C:&\@(DYO(&-O;F9I9W5R871I;VX@9FEL92!A="!A;&PN
+M(%EO=2=R92!I;B!S97)I;W5S('1R;W5B;&4@;F]W+B!!8F]R=&EN9RXB"@EE
+M>&ET(#$*("`@(&9I"B`@("!#1D=&24Q%/2(D0D%+0T9'(@IF:0H*96-H;R`B
+M<F,Z("1P<F5V;&5V96P@+3X@)')U;FQE=F5L.R!296%D:6YG(&-O;F9I9W5R
+M871I;VX@9FEL92`D0T9'1DE,12XB"@IC87-E("1R=6YL979E;"!I;@HP?#8I
+M"7-T87)T/7-T;W`[('-T;W`]<W1O<#L["BHI"7-T87)T/7-T87)T.R!S=&]P
+M/7-T;W`[.PIE<V%C"@I35$]03$E35#TB(@I35$%25$Q)4U0](B(*4U1!4E1%
+M1$Q)4U0](B(*1T5.4U1!4E1%1%]05%(](B(*0TA+4U1!4E1%1%]05%(](F9A
+M;'-E(@H*1V5N7U-T87)T960H*2!["FEF(&5C:&\@(B1/3E],159%3%,B('P@
+M9W)E<"`B+BI</"1P<F5V;&5V96Q</BXJ(CXO9&5V+VYU;&P*=&AE;@H)4U1!
+M4E1%1$Q)4U0](B135$%25$5$3$E35`HD0TU$(@IF:0I]"@I#:&5C:U]3=&%R
+M=&5D*"D@>PH)96-H;R`B)%-405)4141,25-4(B!\(&9G<F5P("(D0TU$(B`^
+M+V1E=B]N=6QL"GT*"FEF(%L@(B1P<F5V;&5V96PB("$](").(B!=.R!T:&5N
+M"@E'14Y35$%25$5$7U!44CTB1V5N7U-T87)T960B"@E#2$M35$%25$5$7U!4
+M4CTB0VAE8VM?4W1A<G1E9"(*9FD*"G=H:6QE(')E860@(%-/4E1?3D\@($]&
+M1E],159%3%,@($].7TQ%5D5,4R`@0TU$("!/4%1)3TY3"F1O"@EE8VAO("(D
+M4T]25%].3R(@?"!G<F5P(")>6S`M.5TJ)"(^+V1E=B]N=6QL('Q\(&-O;G1I
+M;G5E"@E;("$@+68@(B1#340B(%T@)B8@8V]N=&EN=64*"2-I<U]V86QI9%]S
+M97%U96YC92`B)%-/4E1?3D\B('Q\(&-O;G1I;G5E"@H)(R!C=7)R96YT;'D@
+M3U!424].4R!I<R!C;VUP;&5T96QY(&EG;F]R960@+BXN('=E(%]C;W5L9%\@
+M<&%S<R!T:&5M('1O('1H90H)(R!I;FET+7-C<FEP="!A9G1E<B`B<W1A<G0B
+M(&]R(")S=&]P(BX*"@EI9B!E8VAO("(D3TY?3$5614Q3(B!\(&=R97`@(BXJ
+M7#PD<G5N;&5V96Q</BXJ(CXO9&5V+VYU;&P*"71H96X*"0E35$%25$Q)4U0]
+M(B135$%25$Q)4U0@)$--1"(*"69I"@EI9B!E8VAO("(D3T9&7TQ%5D5,4R(@
+M?"!G<F5P("(N*EP\)')U;FQE=F5L7#XN*B(^+V1E=B]N=6QL"@ET:&5N"@D)
+M4U1/4$Q)4U0](B135$]03$E35"`D0TU$(@H)9FD*"21'14Y35$%25$5$7U!4
+M4@H*9&]N92`\("1#1D=&24Q%"@HC($9I<G-T+"!R=6X@=&AE($M)3$P@<V-R
+M:7!T<RX*:68@6R`B)'!R979L979E;"(@(3T@(DXB(%T[('1H96X*"69O<B!#
+M340@:6X@)%-43U!,25-4"@ED;PH)"5-T87)T=7`@)$--1"`D<W1O<`H)9&]N
+M90IF:0H*(R!4:&5N(&QO;VL@870@=&AE('-T87)T('-C<FEP=',*9F]R($--
+M1"!I;B`D4U1!4E1,25-4"F1O"@EI9B`D0TA+4U1!4E1%1%]05%(*"71H96X*
+M"0EC;VYT:6YU90H)96QS90H)("`@(%-T87)T=7`@)$--1"`D<W1A<G0*"69I
+&"F1O;F4*
+`
+end
+SHAR_EOF
+  $shar_touch -am 122302501998 'rc' &&
+  chmod 0750 'rc' ||
+  $echo 'restore of' 'rc' 'failed'
+  if ( md5sum --help 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
+  && ( md5sum --version 2>&1 | grep -v 'textutils 1.12' ) >/dev/null;
+then
+    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
+    || $echo 'rc:' 'MD5 check failed'
+1de843bae801c73c763e31af867dddbf  rc
+SHAR_EOF
+  else
+    shar_count="`LC_ALL= LC_CTYPE= LANG= wc -c < 'rc'`"
+    test 3741 -eq "$shar_count" ||
+    $echo 'rc:' 'original size' '3741,' 'current size' "$shar_count!"
+  fi
+fi
+rm -fr _sh05272
+exit 0
+
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 23 Dec 1998 23:22:51 +0000
+Received: (qmail 32076 invoked from network); 23 Dec 1998 23:22:50 -0000
+Received: from gimli.informatik.uni-oldenburg.de (134.106.1.10)
+  by master.debian.org with SMTP; 23 Dec 1998 23:22:50 -0000
+Received: from finlandia.Infodrom.North.DE ([134.106.121.3])
+	by gimli.Informatik.Uni-Oldenburg.DE (Smail3.1.29.1)
+	id <m0zsxbT-0003KaC>; Thu, 24 Dec 98 00:22 CET
+Received: at Infodrom Oldenburg (/\##/\ Smail-3.2.0.102 1998-Aug-2 #2)
+	by finlandia.Infodrom.North.DE
+	via smail from stdin
+	id <m0zsxbK-000anZC@finlandia.Infodrom.North.DE>
+	for hawesr@gemair.com; Thu, 24 Dec 1998 00:21:58 +0100 (CET) 
+Date: Thu, 24 Dec 1998 00:21:57 +0100
+From: Martin Schulze <joey@finlandia.Infodrom.North.DE>
+To: Richard Hawes <hawesr@gemair.com>, 31018@bugs.debian.org
+Cc: bcollins@debian.org, roland@debian.org
+Subject: #31018: file-rc: startup to level 2+ fails
+Message-ID: <19981224002156.N28754@finlandia.artis.uni-oldenburg.de>
+Reply-To: Martin Schulze <joey@infodrom.north.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95i
+
+Hi Richard,
+
+please explain your patch.
+
+Roland+Ben: Please take a look at the patch and tell me what you
+think.  http://www.infodrom.north.de/Debian/Bugs/db/31/31018.html
+
+Regards,
+
+	Joey
+
+-- 
+If you come from outside of Finland, you live in wrong country.
+	-- motd of irc.funet.fi
+
+Please always Cc to me when replying to me on the lists.
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 23 Dec 1998 23:54:15 +0000
+Received: (qmail 4487 invoked from network); 23 Dec 1998 23:54:14 -0000
+Received: from gimli.informatik.uni-oldenburg.de (134.106.1.10)
+  by master.debian.org with SMTP; 23 Dec 1998 23:54:14 -0000
+Received: from finlandia.Infodrom.North.DE ([134.106.121.3])
+	by gimli.Informatik.Uni-Oldenburg.DE (Smail3.1.29.1)
+	id <m0zsy6W-0003LKC>; Thu, 24 Dec 98 00:54 CET
+Received: at Infodrom Oldenburg (/\##/\ Smail-3.2.0.102 1998-Aug-2 #2)
+	by finlandia.Infodrom.North.DE
+	via smail from stdin
+	id <m0zsy6P-000an8C@finlandia.Infodrom.North.DE>
+	for hawesr@gemair.com; Thu, 24 Dec 1998 00:54:05 +0100 (CET) 
+Date: Thu, 24 Dec 1998 00:54:02 +0100
+From: Martin Schulze <joey@finlandia.Infodrom.North.DE>
+To: Richard Hawes <hawesr@gemair.com>, 31018@bugs.debian.org
+Subject: Re: #31018: file-rc: startup to level 2+ fails
+Message-ID: <19981224005401.A12183@finlandia.artis.uni-oldenburg.de>
+Reply-To: Martin Schulze <joey@infodrom.north.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95i
+
+Hi Richard,
+
+You wrote:
+| the rc for /etc/runlevel.conf is buggy.   It fails to run the
+| default level on startup, and it also starts all programs
+| regardless what program was started in the previous level.
+
+Part two of the bug report is fixed with the patch provided
+with Bug#30669
+
+Regards,
+
+	Joey
+
+-- 
+If you come from outside of Finland, you live in wrong country.
+	-- motd of irc.funet.fi
+
+Please always Cc to me when replying to me on the lists.
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 24 Dec 1998 03:14:11 +0000
+Received: (qmail 18152 invoked from network); 24 Dec 1998 03:14:10 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 24 Dec 1998 03:14:10 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id WAA23846
+	for <31018@bugs.debian.org>; Wed, 23 Dec 1998 22:14:09 -0500 (EST)
+Received: from dayoh-a234.gemair.com(209.115.69.234) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma023819; Wed, 23 Dec 98 22:13:36 -0500
+Sender: rh@rcinet.com
+Message-ID: <3681B148.4781EFAE@gemair.com>
+Date: Thu, 24 Dec 1998 03:13:13 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: 31018@bugs.debian.org
+Subject: Re: Bug#31018: Acknowledgement (file-rc: startup to level 2+ fails)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+The rc file I sent with the bug report was flawed because it did not check
+
+for lock files for the run level which the other file-rc utilities used (sorry).
+
+This new rc file remedies that flaw and also greatly improves the speed
+
+It generates 3 different command lists:
+
+STARTLIST  list of commands to start for run level
+
+STARTEDLIST   list of commands that were started from previous level
+
+(This list is checked before executing the commands from the previous list
+
+(Created only when previous level is not N or S and the current level is not 0,1, or 6)
+
+STOPLIST (created only when previous level is not N or S)
+
+This new version uses grep and sed to create the three lists
+
+This is much faster than the other patch I sent.
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.2).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the `!/bin/sh' line above, then type `sh FILE'.
+#
+# Made on 1998-12-23 21:44 EST by <rh@debian>.
+# Source directory was `/home/rh'.
+#
+# Existing files will *not* be overwritten unless `-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#   4120 -rwxr-x--- rc
+#
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=FAILED
+locale_dir=FAILED
+first_param="$1"
+for dir in $PATH
+do
+  if test "$gettext_dir" = FAILED && test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    set `$dir/gettext --version 2>&1`
+    if test "$3" = GNU
+    then
+      gettext_dir=$dir
+    fi
+  fi
+  if test "$locale_dir" = FAILED && test -f $dir/shar \
+     && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
+  then
+    locale_dir=`$dir/shar --print-text-domain-dir`
+  fi
+done
+IFS="$save_IFS"
+if test "$locale_dir" = FAILED || test "$gettext_dir" = FAILED
+then
+  echo=echo
+else
+  TEXTDOMAINDIR=$locale_dir
+  export TEXTDOMAINDIR
+  TEXTDOMAIN=sharutils
+  export TEXTDOMAIN
+  echo="$gettext_dir/gettext -s"
+fi
+touch -am 1231235999 $$.touch >/dev/null 2>&1
+if test ! -f 1231235999 && test -f $$.touch; then
+  shar_touch=touch
+else
+  shar_touch=:
+  echo
+  $echo 'WARNING: not restoring timestamps.  Consider getting and'
+  $echo "installing GNU \`touch', distributed in GNU File Utilities..."
+  echo
+fi
+rm -f 1231235999 $$.touch
+#
+if mkdir _sh00339; then
+  $echo 'x -' 'creating lock directory'
+else
+  $echo 'failed to create lock directory'
+  exit 1
+fi
+# ============= rc ==============
+if test -f 'rc' && test "$first_param" != -c; then
+  $echo 'x -' SKIPPING 'rc' '(file already exists)'
+else
+  $echo 'x -' extracting 'rc' '(binary)'
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 rc
+M(R$O8FEN+V)A<V@*(R!4:&ES(&ES('1H92!F:6QE(")R8R(@=VAI8V@@<W1A
+M<G1S(&%N9"!S=&]P<R!S97)V:6-E<R!F;W(@=&AE(&1I9F9E<F5N=`HC(')U
+M;FQE=F5L<R!O9B!T:&4@4WES5B!I;FET+@HC"B,@075T:&]R.B`@("`@("!7
+M:6YF<FEE9"!4<OQM<&5R(#QW:6YN:4!X<&EL;W0N;W)G/@HC(%9E<G-I;VXZ
+M("`@("`@,"XR"B,*(R!-:7-C(&9I>&5S(&)Y(%1O;2!,965S(#QT;VU`;'!S
+M9RYD96UO;BYC;RYU:SXN"B,@36ES8R!I;7!R;W9E;65N=',@86YD(&-O9&4@
+M<F5W<FET92!B>2!-87)T:6X@4V-H=6QZ92`\:F]E>4!D96)I86XN;W)G/@HC
+M($UI<V,@9FEX97,L(&EM<')O=F5M96YT<R!A;F0@;6%J;W(@8V]D92!R97=R
+M:71E"B,)(R!7;W)K<R!W:71H($1E8FEA;B!N;W<L(%-T87)T=7`@=&\@;&5V
+M96P@/B`Q(&YO=R!W;W)K<PHC"2,@3VYL>2!S=&%R=',@<')O9W)A;7,@;F]T
+M('-T87)T960@;VX@<')E=FEO=7,@;&5V96P*(PDC($9A<W1E<B!A;F0@4VEM
+M<&QE<@HC"2,@8GD@4FEC:&%R9"!(87=E<R`\<FAA=V5S0&1M82YO<F<^"B,*
+M(R!5;FQI:V4@=')A9&ET:6]N86P@:6UP;&5M96YT871I;VYS(&ET(&%V;VED
+M<R!T:&4@;65S<WD@<V-H96UE('=I=&@*(R!E>'!R97-S:6YG('1H92!S971U
+M<"!T:')O=6=H(&QI;FMS(&)U="!R96%D<R!A(&-E;G1R86P@8V]N9FEG(&9I
+M;&4*(R!I;G-T96%D+B!&<F]M(&$@=&5C:&YI8V%L('!O:6YT(&]F('9I97<@
+M8F]T:"!M971H;V1S(&%R92!A;&UO<W0*(R!E<75I=F%L96YT+@HC"B,@5&\@
+M8F4@8V]M<&%T:6)L92!W:71H('1H92!C;VUM;VX@8V]N9FEG=7)A=&EO;B!S
+M8VAE;64@:6X@=&AE($QI;G5X+7=O<FQD+`HC(&5V97)Y('-C<FEP="!H87,@
+M='=O('-T871E<SH@(F]N(B!O<B`B;V9F(BX@5&AE(&5F9F5C="!O9B!T:&ES
+M(&ES('1H870*(R!O;F-E(&ET(&ES('-W:71C:&5D(&]N+"!I="!I<R!N979E
+M<B!S=&%R=&5D(&%G86EN('=H96X@=&AE(')U;FQE=F5L(&-H86YG97,*(R`H
+M:70@:7,@;VYL>2!E>&5C=71E9"!T;R!S=VET8V@@:70@;V9F(&EF(&YE8V5S
+M<V%R>2DN"B,*"G-E="`M:`H*0T9'1DE,13TB+V5T8R]R=6YL979E;"YC;VYF
+M(@I"04M#1D<](B]E=&,O<G5N;&5V96PN9F%L;&)A8VLB"DQ/0TM&24Q%/2(O
+M=F%R+VQO8VLO<G5N;&5V96PN;&]C:R(*"E-43U!,25-4/2(B"E-405)43$E3
+M5#TB(@I35$%25$5$3$E35#TB(@I#2$M35$%25$5$7U!44CTB9F%L<V4B"@I#
+M:&5C:U]3=&%R=&5D*"D@>PH)96-H;R`B)%-405)4141,25-4(B!\(&9G<F5P
+M("(D0TU$(B`^+V1E=B]N=6QL"GT*"D=E;E]3=&%R="@I('L*9W)E<"`B7ELP
+M+3E=7'LQ+#)<?5L@"5U<>S$L7'U;7B`)75Q[,2Q<?5L@"5U<>S$L7'U;7B`)
+M75Q[,"Q<?5P\)#%</B(@)$-&1T9)3$4@?%P*<V5D("UE("=S+ULP+3E=7'LQ
+M+#)<?5L@"5U<>S$L7'U;7B`)75Q[,2Q<?5L@"5U<>S$L7'U;7B`)75Q[,2Q<
+M?5L@"5U<>S$L7'U<*%M>(`E=7'LQ+%Q]7#Y<*2]<,2\G"GT*"D=E;E]3=&]P
+M*"D@>PIG<F5P(")>6S`M.5U<>S$L,EQ]6R`)75Q[,2Q<?5M>(`E=7'LP+%Q]
+M7#PD,5P^(B`D0T9'1DE,12!\7`IS960@+64@)W,O6S`M.5U<>S$L,EQ]6R`)
+M75Q[,2Q<?5M>(`E=7'LQ+%Q]6R`)75Q[,2Q<?5M>(`E=7'LQ+%Q]6R`)75Q[
+M,2Q<?5PH6UX@"5U<>S$L7'U</EPI+UPQ+R<*?0H*(R!4:&4@9F]L;&]W:6YG
+M('-E8W1I;VX@:7,@=&%K96X@9G)O;2!T:&4@;W)I9VEN86P@<F,@=VET:"!S
+M;&EG:'0*(R!M;V1I9FEC871I;VYS+@H*(PHC(%-T87)T('-C<FEP="!O<B!P
+M<F]G<F%M+@HC"E-T87)T=7`H*2!["B`@8V%S92`B)#$B(&EN"B`@("`@("`@
+M*BYS:"D*("`@("`@("`@("`@("`@("1D96)U9R!S:"`B)$`B"B`@("`@("`@
+M("`@("`@("`[.PH@("`@("`@("HI"B`@("`@("`@("`@("`@("`D9&5B=6<@
+M(B1`(@H@("`@("`@("`@("`@("`@.SL*("!E<V%C"GT*"B,@26=N;W)E($-4
+M4DPM0R!O;FQY(&EN('1H:7,@<VAE;&PL('-O('=E(&-A;B!I;G1E<G)U<'0@
+M<W5B<')O8V5S<V5S+@IT<F%P("(Z(B!)3E0@455)5"!44U10"@HC(%-E="!O
+M;FQC<B!T;R!A=F]I9"!S=&%I<F-A<V4@969F96-T+@IS='1Y(&]N;&-R(#`^
+M)C$*"F1E8G5G/2(B"FEF(%L@(B0Q(B`]("(M9"(@70IT:&5N"B`@("!D96)U
+M9SUE8VAO"B`@("!S970@+65U>`H@("`@<VAI9G0*9FD*"B,@27,@=&AI<R!D
+M;VYE(&)E8V%U<V4@4E5.3$5614P@86YD(%!2159,159%3"!C;W5L9"!B92!R
+M96%D+6]N;'D_"B,*(R!.;W<@9FEN9"!O=70@=VAA="!T:&4@8W5R<F5N="!A
+M;F0@=VAA="!T:&4@<')E=FEO=7,@<G5N;&5V96P@87)E+@IR=6YL979E;#TD
+M>U)53DQ%5D5,+3%]"B`@(R!'970@9FER<W0@87)G=6UE;G0N(%-E="!N97<@
+M<G5N;&5V96P@=&\@=&AI<R!A<F=U;65N="X*6R`B)#$B("$]("(B(%T@)B8@
+M<G5N;&5V96P](B0Q(@IP<F5V;&5V96P])'M04D563$5614PZ/2).(GT*("`C
+M($ES('1H:7,@;F5C97-S87)Y/PHC97AP;W)T(')U;FQE=F5L('!R979L979E
+M;`H*("`C('=A:70@9F]R(&%N>2!L;V-K('1O('9A;FES:"`H8G5T(&]N;'D@
+M=VAE;B!N;W0@8F]O=&EN9RD*:3TP"G=H:6QE(%L@+68@(B1,3T-+1DE,12(@
+M+6$@(B1P<F5V;&5V96PB("$](").(B!="F1O"B`@("!R96%D('!I9"`\("(D
+M3$]#2T9)3$4B"B`@("!I9B`A(&MI;&P@+3`@)'!I9"`F/B`O9&5V+VYU;&P*
+M("`@('1H96X*"65C:&\@(B0P.B!F;W5N9"!S=&%L92!L;V-K9FEL92`G)$Q/
+M0TM&24Q%)RX@26=N;W)I;F<@:70N(B`^)C(*(R!R97-T<FEC=&EO;B!O;B!B
+M=6EL="UI;B!F=6YC=&EO;G,@+BXN"B,@("`@("`@(')M("UF("(D3$]#2T9)
+M3$4B"B`@("`@("`@8G)E86L*("`@(&9I"B`@("!I9B!;("(D:2(@+6=T("(Q
+M,"(@70H@("`@=&AE;@H@("`@("`@(&5C:&\@(E!R;V-E<W,@;F\N("<D<&ED
+M)R!I<R!L;V-K:6YG('1H92!C;VYF:6=U<F%T:6]N(&1A=&%B87-E+B!497)M
+M:6YA=&EN9RXB(#XF,@H@("`@("`@(&5X:70@,0H@("`@9FD*("`@('-L965P
+M(#(*("`@(&QE="!I*STQ"F1O;F4*"B`@(R!4:&ES('-C<FEP="!I<R!V:71A
+M;"!S;R!W92!B971T97(@:V5E<"!A;B!O;&0@8V]P>2!O9B!T:&4@8V]N9FEG
+M=7)A=&EO;@H@(",@9FEL92!A<R!F86QL<V%V92UC;VYF:6=U<F%T:6]N+B!4
+M:&ES(&1O97,@;F]T(&AA;F1L92!A(&)R;VME;B!C;VYF:6<*("`C(&9I;&4L
+M('1H;W5G:"X*:68@6R`A("UF("(D0T9'1DE,12(@70IT:&5N"B`@("!E8VAO
+M(")-:7-S:6YG(&-O;F9I9W5R871I;VX@9FEL92`G)$-&1T9)3$4G('5S:6YG
+M(&9A;&QB86-K(&-O;F9I9RXB"@H@("`@("`C(%1H:7,@8V]U;&0@8F4@82!L
+M:6YK('1O("]V87(O8F%C:W5P+W)U;FQE=F5L+F-O;F8N"B`@("!I9B!;("$@
+M+68@(B1"04M#1D<B(%T*("`@('1H96X*"65C:&\@(DYO(&-O;F9I9W5R871I
+M;VX@9FEL92!A="!A;&PN(%EO=2=R92!I;B!S97)I;W5S('1R;W5B;&4@;F]W
+M+B!!8F]R=&EN9RXB"@EE>&ET(#$*("`@(&9I"B`@("!#1D=&24Q%/2(D0D%+
+M0T9'(@IF:0H*96-H;R`B<F,Z("1P<F5V;&5V96P@+3X@)')U;FQE=F5L.R!2
+M96%D:6YG(&-O;F9I9W5R871I;VX@9FEL92`D0T9'1DE,12XB"@IC87-E("1R
+M=6YL979E;"!I;@HP?#8I"7-T87)T/7-T;W`[('-T;W`]<W1O<#L["BHI"7-T
+M87)T/7-T87)T.R!S=&]P/7-T;W`[.PIE<V%C"@II9B!;("(D<')E=FQE=F5L
+M(B`A/2`B3B(@+6$@(B1P<F5V;&5V96PB("$](")3(B!=.R!T:&5N"@EI9B!;
+M("(D<G5N;&5V96PB("$]("(V(B`M82`B)')U;FQE=F5L(B`A/2`B,"(@+6$@
+M(B1R=6YL979E;"(@(3T@(C$B(%T*"71H96X*"0E35$%25$5$3$E35#U@1V5N
+M7U-T87)T("1P<F5V;&5V96Q@"@D)0TA+4U1!4E1%1%]05%(](D-H96-K7U-T
+M87)T960B"@EF:0H)4U1/4$Q)4U0]8$=E;E]3=&]P("1R=6YL979E;&`*9FD*
+M"E-405)43$E35#U@1V5N7U-T87)T("1R=6YL979E;&`*"B,@1FER<W0L(')U
+M;B!T:&4@2TE,3"!S8W)I<'1S+@IF;W(@0TU$(&EN("135$]03$E35`ID;PH)
+M4W1A<G1U<"`D0TU$("1S=&]P"F1O;F4*"B,@5&AE;B!L;V]K(&%T('1H92!S
+M=&%R="!S8W)I<'1S"F9O<B!#340@:6X@)%-405)43$E35`ID;PH):68@)$-(
+M2U-405)4141?4%12"@ET:&5N"@D)8V]N=&EN=64*"65L<V4*"2`@("!3=&%R
+9='5P("1#340@)'-T87)T"@EF:0ID;VYE"FEN
+`
+end
+SHAR_EOF
+  $shar_touch -am 122321431998 'rc' &&
+  chmod 0750 'rc' ||
+  $echo 'restore of' 'rc' 'failed'
+  if ( md5sum --help 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
+  && ( md5sum --version 2>&1 | grep -v 'textutils 1.12' ) >/dev/null;
+then
+    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
+    || $echo 'rc:' 'MD5 check failed'
+9c1e9ddb7a754fd504de4cd0fb171786  rc
+SHAR_EOF
+  else
+    shar_count="`LC_ALL= LC_CTYPE= LANG= wc -c < 'rc'`"
+    test 4120 -eq "$shar_count" ||
+    $echo 'rc:' 'original size' '4120,' 'current size' "$shar_count!"
+  fi
+fi
+rm -fr _sh00339
+exit 0
+
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 24 Dec 1998 15:42:18 +0000
+Received: (qmail 2090 invoked from network); 24 Dec 1998 15:42:18 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 24 Dec 1998 15:42:18 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id KAA02344;
+	Thu, 24 Dec 1998 10:41:47 -0500 (EST)
+Received: from dayoh-a242.gemair.com(209.115.69.242) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma002334; Thu, 24 Dec 98 10:41:21 -0500
+Sender: rh@rcinet.com
+Message-ID: <368260A6.3162CB5F@gemair.com>
+Date: Thu, 24 Dec 1998 15:41:26 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schulze <joey@infodrom.north.de>
+CC: 31018@bugs.debian.org, bcollins@debian.org, roland@debian.org
+Subject: Re: #31018: file-rc: startup to level 2+ fails
+References: <19981224002156.N28754@finlandia.artis.uni-oldenburg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+oops, I forgot to check if the command is executable
+I changed the Startup function to check for this.
+
+I do not think that the program should exit when the configuration is
+locked by a process
+because that can cause the system to hang..
+I suggest wait -- term signal-- wait -- kill signal  then continue
+
+My latest version is at:
+
+http://dmapub.dma.org/~rhawes/programs/rc
+
+(I won't flood you with a new version every 10 hours)
+
+Merry Christmas!
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 26 Dec 1998 03:11:46 +0000
+Received: (qmail 28054 invoked from network); 26 Dec 1998 03:11:45 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 26 Dec 1998 03:11:45 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id WAA03563;
+	Fri, 25 Dec 1998 22:11:03 -0500 (EST)
+Received: from dayoh-a217.gemair.com(209.115.69.217) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma003554; Fri, 25 Dec 98 22:10:45 -0500
+Sender: rh@rcinet.com
+Message-ID: <36845399.91D0CFF5@gemair.com>
+Date: Sat, 26 Dec 1998 03:10:17 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schulze <joey@infodrom.north.de>
+CC: 31018@bugs.debian.org, bcollins@debian.org, roland@debian.org
+Subject: Re: #31018: file-rc: startup to level 2+ fails
+References: <19981224005401.A12183@finlandia.artis.uni-oldenburg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Martin Schulze wrote:
+
+> Hi Richard,
+>
+> You wrote:
+> | the rc for /etc/runlevel.conf is buggy.   It fails to run the
+> | default level on startup, and it also starts all programs
+> | regardless what program was started in the previous level.
+>
+> Part two of the bug report is fixed with the patch provided
+> with Bug#30669
+>
+
+I can't duplicate first part of bug which first apperred with a slightly
+modified rc version after booting up.  Sorry.
+
+I have modified the file once again.
+
+It uses egrep to remove the commands in STARTEDLIST  (previous level)
+from   STARTLIST (new level).  Also, I improved handling of lockfiles.
+It waits longer for cleanup after a term signal is sent.  Echoes a "."
+before each sleep.  It detects if a config file is invalid by checking
+if STARTLIST is empty.  If both config files are invalid, it resorts to
+executing the command in EMERGENCY.
+
+Latest version at:
+
+http://dmapub.dma.org/~rhawes/programs/rc
+
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+
+
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 30 Dec 1998 11:37:10 +0000
+Received: (qmail 2854 invoked from network); 30 Dec 1998 11:37:08 -0000
+Received: from finlandia.infodrom.north.de (root@134.106.121.3)
+  by master.debian.org with SMTP; 30 Dec 1998 11:37:08 -0000
+Received: at Infodrom Oldenburg (/\##/\ Smail-3.2.0.102 1998-Aug-2 #2)
+	by finlandia.Infodrom.North.DE
+	via smail from stdin
+	id <m0zvJvi-000amzC@finlandia.Infodrom.North.DE>
+	for control@bugs.debian.org; Wed, 30 Dec 1998 12:36:46 +0100 (CET) 
+Date: Wed, 30 Dec 1998 12:36:45 +0100
+From: Martin Schulze <joey@finlandia.Infodrom.North.DE>
+To: Richard Hawes <hawesr@gemair.com>, 31018@bugs.debian.org
+Cc: control@bugs.debian.org
+Subject: #31018
+Message-ID: <19981230123644.A3196@finlandia.artis.uni-oldenburg.de>
+Reply-To: Martin Schulze <joey@infodrom.north.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95i
+
+severity 31018 whishlist
+thanks
+
+You wrote:
+> This new version uses grep and sed to create the three lists
+
+Which is why I can't accept it.  Please write it in plain bash
+without calling external programs where it can be avoided.  The
+original rc and my heavily modified version have shown that this
+is possible.
+
+Regards,
+
+	Joey
+
+-- 
+If you come from outside of Finland, you live in wrong country.
+	-- motd of irc.funet.fi
+
+Please always Cc to me when replying to me on the lists.
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 30 Dec 1998 11:38:55 +0000
+Received: (qmail 2885 invoked from network); 30 Dec 1998 11:38:55 -0000
+Received: from finlandia.infodrom.north.de (root@134.106.121.3)
+  by master.debian.org with SMTP; 30 Dec 1998 11:38:55 -0000
+Received: at Infodrom Oldenburg (/\##/\ Smail-3.2.0.102 1998-Aug-2 #2)
+	by finlandia.Infodrom.North.DE
+	via smail from stdin
+	id <m0zvJxl-000amzC@finlandia.Infodrom.North.DE>
+	for 31018@bugs.debian.org; Wed, 30 Dec 1998 12:38:53 +0100 (CET) 
+Date: Wed, 30 Dec 1998 12:38:53 +0100
+From: Martin Schulze <joey@finlandia.Infodrom.North.DE>
+To: Richard Hawes <hawesr@gemair.com>, 31018@bugs.debian.org
+Subject: Re: #31018: file-rc: startup to level 2+ fails
+Message-ID: <19981230123853.B3196@finlandia.artis.uni-oldenburg.de>
+Reply-To: Martin Schulze <joey@infodrom.north.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95i
+
+Martin Schulze wrote:
+
+> Hi Richard,
+>
+You wrote:
+| the rc for /etc/runlevel.conf is buggy.   It fails to run the
+| default level on startup, and it also starts all programs
+| regardless what program was started in the previous level.
+
+I wrote:
+> Part two of the bug report is fixed with the patch provided
+> with Bug#30669
+
+You wrote:
+| I can't duplicate first part of bug which first apperred with a slightly
+| modified rc version after booting up.  Sorry.
+
+Since the bug consisted on two parts, part 1 can't be reproduced and
+part2 is fixed by the version I'll be uploading in a minute this
+bug looks like being resolved.
+
+Regards,
+
+	Joey
+
+-- 
+If you come from outside of Finland, you live in wrong country.
+	-- motd of irc.funet.fi
+
+Please always Cc to me when replying to me on the lists.
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 30 Dec 1998 15:58:59 +0000
+Received: (qmail 617 invoked from network); 30 Dec 1998 15:58:59 -0000
+Received: from zeus.wi.leidenuniv.nl (132.229.128.1)
+  by master.debian.org with SMTP; 30 Dec 1998 15:58:59 -0000
+Received: from lightning.wiggy.net (root@home015.wi.leidenuniv.nl [132.229.210.143])
+	by zeus.wi.leidenuniv.nl (8.8.8/8.8.8/WI) with ESMTP id QAA24003;
+	Wed, 30 Dec 1998 16:58:55 +0100 (MET)
+Received: (from wichert@localhost)
+	by lightning.wiggy.net (8.9.1a/8.9.1/Debian/GNU) id PAA01872;
+	Wed, 30 Dec 1998 15:04:59 +0100
+Date: Wed, 30 Dec 1998 15:04:59 +0100
+From: Wichert Akkerman <wakkerma@cs.leidenuniv.nl>
+To: Martin Schulze <joey@infodrom.north.de>, 31018@bugs.debian.org
+Subject: Re: Bug#31018: #31018
+Message-ID: <19981230150459.E395@cs.leidenuniv.nl>
+References: <19981230123644.A3196@finlandia.artis.uni-oldenburg.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary=OZkY3AIuv2LYvjdk; micalg=pgp-md5;
+	protocol="application/pgp-signature"
+X-Mailer: Mutt 0.95i
+In-Reply-To: <19981230123644.A3196@finlandia.artis.uni-oldenburg.de>; from Martin Schulze on Wed, Dec 30, 1998 at 12:36:45PM +0100
+
+
+--OZkY3AIuv2LYvjdk
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+Previously Martin Schulze wrote:
+> You wrote:
+> > This new version uses grep and sed to create the three lists
+>=20
+> Which is why I can't accept it.
+
+Both grep and sed are in /bin which is always present, or do you have
+another reason not to accept this? Just curious..
+
+Wichert.
+
+--=20
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D
+This combination of bytes forms a message written to you by Wichert Akkerma=
+n.
+E-Mail: wakkerma@cs.leidenuniv.nl
+WWW: http://www.wi.leidenuniv.nl/~wichert/
+
+--OZkY3AIuv2LYvjdk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3ia
+
+iQB1AwUBNoozC6jZR/ntlUftAQFYGAMAhYiNB2/IZYbB8qUIabZ1LESFYyeGxfgp
+YgC+2nBOXtCL6GOyWuq2J9B9PIcOibckXyQgY+xI6toQVYPmH57x/BKKUYKffuUk
+59YebdN+9m4ZbGYivIsmM+pkrCjyxIDt
+=GddL
+-----END PGP SIGNATURE-----
+
+--OZkY3AIuv2LYvjdk--
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 30 Dec 1998 17:23:30 +0000
+Received: (qmail 8807 invoked from network); 30 Dec 1998 17:23:28 -0000
+Received: from finlandia.infodrom.north.de (root@134.106.121.3)
+  by master.debian.org with SMTP; 30 Dec 1998 17:23:28 -0000
+Received: at Infodrom Oldenburg (/\##/\ Smail-3.2.0.102 1998-Aug-2 #2)
+	from tapiola.Infodrom.North.DE by finlandia.Infodrom.North.DE
+	via smail with esmtp
+	id <m0zvPKx-000an8C@finlandia.Infodrom.North.DE>
+	for <31018@bugs.debian.org>; Wed, 30 Dec 1998 18:23:11 +0100 (CET) 
+Received: from ([134.106.121.41]) by teergrube (0 sec delayed, relaying allowed)
+Received: at Infodrom Oldenburg (Smail-3.2.0.92 1997-Feb-9 #2)
+	by tapiola.Infodrom.North.DE
+	id <m0zvPKu-0003eVC>; Wed, 30 Dec 1998 18:23:08 +0100 (CET)
+Message-ID: <19981230182306.A21645@tapiola.infodrom.north.de>
+Date: Wed, 30 Dec 1998 18:23:06 +0100
+From: Martin Schulze <joey@tapiola.Infodrom.North.DE>
+To: Wichert Akkerman <wakkerma@cs.leidenuniv.nl>, 31018@bugs.debian.org
+Subject: Re: Bug#31018: #31018
+Reply-To: Martin Schulze <joey@infodrom.north.de>
+References: <19981230123644.A3196@finlandia.artis.uni-oldenburg.de> <19981230150459.E395@cs.leidenuniv.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <19981230150459.E395@cs.leidenuniv.nl>; from Wichert Akkerman on Wed, Dec 30, 1998 at 03:04:59PM +0100
+
+Wichert Akkerman wrote:
+> Previously Martin Schulze wrote:
+> > You wrote:
+> > > This new version uses grep and sed to create the three lists
+> > 
+> > Which is why I can't accept it.
+> 
+> Both grep and sed are in /bin which is always present, or do you have
+> another reason not to accept this? Just curious..
+
+Yes.  file-rc was written in bash to avoid calls to external programs.
+sed and grep are external programs.
+
+Regards,
+
+	Joey
+
+
+-- 
+If you come from outside of Finland, you live in wrong country.
+	-- motd of irc.funet.fi
+
+Please always Cc to me when replying to me on the lists.
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 1 Jan 1999 12:11:54 +0000
+Received: (qmail 17000 invoked from network); 1 Jan 1999 12:11:54 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 1 Jan 1999 12:11:54 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id HAA23399;
+	Fri, 1 Jan 1999 07:11:18 -0500 (EST)
+Received: from dayoh-a226.gemair.com(209.115.69.226) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma023391; Fri, 1 Jan 99 07:10:52 -0500
+Sender: rh@rcinet.com
+Message-ID: <368CBB23.A6D1DF5A@gemair.com>
+Date: Fri, 01 Jan 1999 12:10:12 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schulze <joey@infodrom.north.de>
+CC: 31018@bugs.debian.org, control@bugs.debian.org
+Subject: Re: #31018
+References: <19981230123644.A3196@finlandia.artis.uni-oldenburg.de>
+Content-Type: multipart/mixed;
+ boundary="------------98A5E470792D38575203668F"
+
+This is a multi-part message in MIME format.
+--------------98A5E470792D38575203668F
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Martin Schulze wrote:
+
+> severity 31018 whishlist
+> thanks
+>
+> You wrote:
+> > This new version uses grep and sed to create the three lists
+>
+> Which is why I can't accept it.  Please write it in plain bash
+> without calling external programs where it can be avoided.  The
+> original rc and my heavily modified version have shown that this
+> is possible.
+>
+> Regards,
+>
+>         Joey
+>
+> --
+> If you come from outside of Finland, you live in wrong country.
+>         -- motd of irc.funet.fi
+>
+> Please always Cc to me when replying to me on the lists.
+
+I used them for speed, and they are in /bin which should be Okay because
+it is in
+the root partition.
+( I now use only sed to create the lists, and `egrep -v' to select
+unstarted services but egrep probably only increases speed slightly)
+Actually, the speed of the new version is comparable to the other rc
+script that uses links.
+I cannot accept the slowness of your old rc.
+I cannot accept your old rc because it exits when the configuration is
+locked
+and when there are no configuration files.
+I recommend a `Last Resort Command' that goes to single user mode
+instead of suddenly exitting.
+Your old version created command lists that were never used.
+
+Also,.I recommend stripping the leading paths to reduce bash's input
+
+buffer size usage (what is the limit?) and increases speed (sed has
+
+to be used for this.)
+
+Attached is my gzipped version which I last modified on 12/30/98.
+
+I added an error handler that sends an alert bell and waits 1 second.
+
+.--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+
+
+
+--------------98A5E470792D38575203668F
+Content-Type: application/x-gzip;
+ name="rc.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="rc.gz"
+
+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
+NhYPAnD19L349Bf/DzWHxdEtFAAA
+--------------98A5E470792D38575203668F--
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 1 Jan 1999 14:48:14 +0000
+Received: (qmail 27758 invoked from network); 1 Jan 1999 14:48:14 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 1 Jan 1999 14:48:14 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id JAA03540;
+	Fri, 1 Jan 1999 09:47:56 -0500 (EST)
+Received: from dayoh-a240.gemair.com(209.115.69.240) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma003530; Fri, 1 Jan 99 09:47:35 -0500
+Sender: rh@rcinet.com
+Message-ID: <368CDFD7.AACFB9CD@gemair.com>
+Date: Fri, 01 Jan 1999 14:46:47 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schulze <joey@infodrom.north.de>
+CC: 31018@bugs.debian.org, control@bugs.debian.org
+Subject: Re: #31018
+References: <19981230123644.A3196@finlandia.artis.uni-oldenburg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Martin Schulze wrote:
+
+> severity 31018 whishlist
+> thanks
+>
+> You wrote:
+> > This new version uses grep and sed to create the three lists
+>
+> Which is why I can't accept it.  Please write it in plain bash
+> without calling external programs where it can be avoided.  The
+> original rc and my heavily modified version have shown that this
+> is possible.
+>
+> Regards,
+>
+>         Joey
+
+May I suggest a slightly different approach that will not be too slow:
+
+1) write a function or script that creates a bash script (runlevel.sh)
+which sets 3 arrays
+(Start[], Started[]. and Stop[]) of Start, Started and Stop commands for
+each level
+and recreate the script whenever runlevel.conf is changed or whenever
+the last modified
+date of runlevel.conf is more recent than the script (runlevel.sh).
+
+2) Use  ` .   /etc/runlevel.sh ' if it is more recent than runlevel.conf
+otherwise create runlevel.sh first.
+
+3) Get the Start, Started, and Stop commands for the new run level from
+the arrays:
+${Start[$runlevel]}, ${Started[$runlevel]}, ${Stop[$runlevel]}
+
+
+Also, I discovered another bug in your old script ( Line 60):
+
+-       -    -    -    -    -    -    -    -    -    -    -    -    -
+  # wait for any lock to vanish (but only when not booting)
+i=0
+while [ -f "$LOCKFILE" -a "$previous" != "N" ]
+do
+-       -    -    -    -    -    -    -    -    -    -    -    -    -
+
+The script does not set `previous' but rather `prevlevel'.
+
+To be consistent with the other rc file, I changed the variable
+`prevlevel' to `previous',
+export `runlevel' and `previous' and added the following  lines:
+-       -    -    -    -    -    -    -    -    -    -    -    -    -
+# Ignore CTRL-C only in this shell, so we can interrupt subprocesses.
+trap ":" INT QUIT TSTP
+
+-       -    -    -    -    -    -    -    -    -    -    -    -    -
+
+Also, I wrote two scripts that make it easy to test configuration
+lockfile handling which are in an tar - gzip'ed file at:
+http://dmapub.dma.org/~rhawes/programs/rc.gz
+
+
+--
+Richard L. Hawes
+
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 5 Jan 1999 00:42:52 +0000
+Received: (qmail 26328 invoked from network); 5 Jan 1999 00:42:51 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 5 Jan 1999 00:42:51 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id TAA01857;
+	Mon, 4 Jan 1999 19:42:09 -0500 (EST)
+Received: from dayoh-a215.gemair.com(209.115.69.215) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma001845; Mon, 4 Jan 99 19:41:54 -0500
+Sender: rh@rcinet.com
+Message-ID: <36915F9C.CFF4D578@gemair.com>
+Date: Tue, 05 Jan 1999 00:41:00 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schulze <joey@infodrom.north.de>
+CC: 31018@bugs.debian.org
+Subject: Re: #31018
+References: <19981230123644.A3196@finlandia.artis.uni-oldenburg.de>
+Content-Type: multipart/mixed;
+ boundary="------------18A8387A0CDA7833F9BB04A7"
+
+This is a multi-part message in MIME format.
+--------------18A8387A0CDA7833F9BB04A7
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Martin Schulze wrote:
+
+> severity 31018 whishlist
+> thanks
+>
+> You wrote:
+> > This new version uses grep and sed to create the three lists
+>
+> Which is why I can't accept it.  Please write it in plain bash
+> without calling external programs where it can be avoided.  The
+> original rc and my heavily modified version have shown that this
+> is possible.
+
+The whole purpose of the third list is to optimize the script.  I am
+afraid
+that you are defeating the purpose of optimization because bash will
+probably slow it down more in the time consumed in producing the
+third list than the time it takes to re-run already ran init.d scripts.
+
+You probably should just produce the start and stop command list
+or use the method which I suggested  -- load arrays from a third file.
+
+I produced a program -- rcconfig  -- that will create three arrays --
+the StartList and StopList which map the Index `0, 1, 2, . . .' to run
+levels `S, 0, 1, 2, . . .', and the  Optimal_Start  which maps the 0
+based
+one dimenional index to a two dimensional array of run levels [2 -5] [2
+- 5]
+for new run level and previous run level respectively.
+
+I am sending the two programs rc and rcconfig, which probably need more
+work.  ( rc should
+lock the configuration before reading it, another minor bug. that is
+also in
+your old rc file.)
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+
+--------------18A8387A0CDA7833F9BB04A7
+Content-Type: application/x-gzip;
+ name="rc.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="rc.gz"
+
+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
+fKoKutgRAAA=
+--------------18A8387A0CDA7833F9BB04A7
+Content-Type: application/x-gzip;
+ name="rcconfig.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="rcconfig.gz"
+
+H4sICB5ekTYAA3JjY29uZmlnAJVWbVPbRhD+rPsVm0NJIGAb06QzZYAJNSbx1AGKnUw7ODFn
+6WzdIN+pJ8lAjf97d0+ybKCZpmEmlvbl2d1nd0+38aIxUroxEmnENsAGgdFjNYFaDQIrRSZR
+VA9EEEkYq1imMLZmCjbXsZzJuE7WMDYWrdD7OM8iY/eh+HepgkjYED6KW/Q7sBH9vg+nom7s
+5AjNv0ibKqNL+916k23QH3zWsbqRkFkRqgwNRAxqmsRyKnUmSJCCykDMjApTyDCzqUzTe0gx
+yamEW5VRJfIusShWeuJMUpnlCT5Zk08iiJW+SWGUZ4A1IoiAALEtBirLp1oRROk0Q4M6nFLV
+AjIZRFoFaJcYpTMwY5gpeQsjk0WYBVZPYFaCiKcmzSiNv3I1EzGi111tfQMjiVGmCVYyiot0
+XYYomxpdJpBbV+iyJqWdSVfp/K52a2wc7hD2TFoq26okg0ggF7cGUqRIpvvAjeaAjeFmPOZ1
+6KO7HI9l4JLOIoUcEnmCkjQ6kEQpSlLMB2OGKNspRZriEK7NUC4mArO5jWSR0nISAHutJzJF
+tM3Czej4Hrsgg5zcMlNCEyimBGqMwAF2SNj7LeIGPdGol0iyjrBvKeTJDrWmmj6CLaYyrDOG
+LYVaKyLHzkQbZL3Vv+zWWkVkRxkVFMk43oHUwC1yLDQqMmltjpSl+SixhnKQaZ1h+xPg+xw6
+Z334/XOnD/1e/4LQvxxfdo5/7bZ7WJrGiRSx+lu6qXcp5BDmluYslKN8ssW6563fTjvd9iFv
+zIRtxCa4aVQLQ2+cdc46/eFJ5xJNZBY0CLUecnbePRletoat49bHdqmqHMcijkciuBk6Ojj7
+nt1S/fmsdfrhmRKHi2NFKXJ8KSd5LGy1KLhWVV7Di+P+Wm4DSq53cdzCaFfgfR3MmzuDBWen
+nXb3pHnIv13t1n5x0r3BwneGpRLtv1UOS02vfTJsfULdnKUv/XmBsigfVr/ryTQGm2tAg6PB
+Vv3Ny0HzJcvgArnP2Ah6Nyph+8UbPrhXzLH/6eKQ+3P8Qaj9mmtJNk0WDd+vL087zqjNp0hZ
+v3N+1mNtaze3YA4bgE/Y5o9Ch7G0DLffAPd3cUi4/54DHL3aK4Q1LYEPBGdpLGUCTbZg7IPU
+wx5tTYmF79LSiRqr1G0hbTwip9Vu0UhN1AxXCzsGrmWMWlXTALzxjKmSkV1i5MBvDo4afkkt
+X8U3yQ+EN8mPR/+PqD2ZDTs6pKDMwyW/Qqouc90lOA6HwHscvjIPzw7NPA8tD/kuZ56MU4nv
+MS4UySqX7SbzxoqAN4r9gqkJJWMlctNB1kLCLCDTSI2zKnKpv1uPuUFfloCiufWV+R09Fm5l
+GqXChfaWq/Rki7zVBj5dvu+5IBqjD447oJbHBCznHNYHHgbFAkHBOpQUo3j9kIDVg4u4Bl8b
+QzWAsBwFmueSO9Rzf5nDij40AFJ0ztpn5/vQevQ1wuOUzi8ZUsPu8CBvupJocJb9onO3B7vQ
+hD34Cd7CO/iZhYZ55VjgAyXUxRG88vH96+H1Ksuq6XAA/ryoaHGN7lqy+f+LsrGaYTTEywxK
+5R3Owu4O6Hw6khYH26nTdW3hsI11ecWuE2lryQ74dUXlv2c74Hzl+7jSAR5DT2QLZ/5sS14f
+vAa+x6FmHouPUPxufZRxrDK8E8hiUImhCytnFUUlOcwjbrxnm+hXxogJr17BCs4tCX5ogS5Q
++OENFV6+0uIuJqwV9+CuaMJdOdaUztMZlMv8x5+0zpubVeTa3hZ/w99ub66io2gLzR03h9fl
+IfuMKg4PICcWT9fa7Im+Qtpuot01LonnPTzAPv4UaOdJpqYiLubsyndJuYY4gWuCmzL33wKO
+HqD4ZOD3wzXnxbN1IbrKTH0OR+vKcpPKFZsvV3RRek1nT6T0ur7UGNQL8CriYwL8sS3z7JRg
+H+VSGLLi6PrR/cV5+QdE6zA1+gsAAA==
+--------------18A8387A0CDA7833F9BB04A7--
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 10 Jan 1999 22:19:23 +0000
+Received: (qmail 8032 invoked from network); 10 Jan 1999 22:19:21 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 10 Jan 1999 22:19:21 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id RAA22834;
+	Sun, 10 Jan 1999 17:18:45 -0500 (EST)
+Received: from dayoh-a214.gemair.com(209.115.69.214) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma022823; Sun, 10 Jan 99 17:18:16 -0500
+Sender: rh@rcinet.com
+Message-ID: <369926E6.2E963B9A@gemair.com>
+Date: Sun, 10 Jan 1999 22:17:10 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schulze <joey@infodrom.north.de>
+CC: 31018@bugs.debian.org
+Subject: Re: #31018: file-rc: Optimization
+References: <19981230123853.B3196@finlandia.artis.uni-oldenburg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Optimization by using a cache file:
+bug fix for rc:
+    now locks configuration
+    fixed typo that prevented using the optimal start command list
+
+bug fix for rcconfig:
+    now locks the configuration for entire time it is generates cache
+
+new versions of programs and test scripts are at:
+http://www.dma.org/~rhawes/rc.tgz
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 20 Jan 1999 13:30:15 +0000
+Received: (qmail 6425 invoked from network); 20 Jan 1999 13:30:11 -0000
+Received: from gatekeeper.rhein.de (193.175.27.1)
+  by master.debian.org with SMTP; 20 Jan 1999 13:30:11 -0000
+Received: (from root@localhost)
+	by gatekeeper.rhein.de (8.9.1a/8.9.1-ws3)
+	id OAA22768; Wed, 20 Jan 1999 14:29:55 +0100 (MET)
+>Received: from spinnaker.rhein.de (roland@spinnaker.rhein.de [193.175.27.129])
+	by luv.rhein.de (8.9.1a/8.9.1/Debian/GNU) with ESMTP id NAA23895;
+	Wed, 20 Jan 1999 13:25:22 +0100
+From: Roland Rosenfeld <roland@spinnaker.rhein.de>
+Received: (from roland@localhost)
+	by spinnaker.rhein.de (8.9.1a/8.9.1/Debian/GNU) id NAA00590;
+	Wed, 20 Jan 1999 13:25:19 +0100
+Date: Wed, 20 Jan 1999 13:25:19 +0100
+To: Richard Hawes <hawesr@gemair.com>
+Cc: Martin Schulze <joey@infodrom.north.de>, 31018@bugs.debian.org
+Subject: Re: #31018: file-rc: Optimization
+Message-ID: <19990120132519.A493@spinnaker.rhein.de>
+References: <19981230123853.B3196@finlandia.artis.uni-oldenburg.de> <369926E6.2E963B9A@gemair.com>
+Mime-Version: 1.0
+X-Mailer: Mutt 0.95.1i
+In-Reply-To: <369926E6.2E963B9A@gemair.com>
+Content-Type: text/plain; charset=us-ascii
+
+On Sun, 10 Jan 1999, Richard Hawes wrote:
+
+> Optimization by using a cache file:
+> bug fix for rc:
+>     now locks configuration
+
+Is this a good idea? Can we be sure, that /var is mounted at the
+moment, when rc is run? Otherwise this will lock the system...
+The same problem I see with your ideas about a "cache file", which has 
+to be written on an existing and writable filesystem...
+
+Or can we be sure that all of this is done in rcS before rc is
+started?
+
+> new versions of programs and test scripts are at:
+> http://www.dma.org/~rhawes/rc.tgz
+
+I'll have a look at it.
+
+Ciao
+
+        Roland
+
+-- 
+ * roland@spinnaker.rhein.de * http://www.rhein.de/~roland/ *
+ PGP: 1024/DD08DD6D   2D E7 CC DE D5 8D 78 BE  3C A0 A4 F1 4B 09 CE AF
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 22 Jan 1999 21:51:02 +0000
+Received: (qmail 11488 invoked from network); 22 Jan 1999 21:51:02 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 22 Jan 1999 21:51:02 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id QAA27067;
+	Fri, 22 Jan 1999 16:50:18 -0500 (EST)
+Received: from dayoh-a173.gemair.com(209.115.69.173) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma027057; Fri, 22 Jan 99 16:50:12 -0500
+Sender: hawesr@rcinet.com
+Message-ID: <36A8F25F.8C27A5F7@gemair.com>
+Date: Fri, 22 Jan 1999 21:49:20 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roland Rosenfeld <roland@spinnaker.rhein.de>
+CC: Martin Schulze <joey@infodrom.north.de>, 31018@bugs.debian.org
+Subject: Re: #31018: file-rc: Optimization
+References: <19981230123853.B3196@finlandia.artis.uni-oldenburg.de> <369926E6.2E963B9A@gemair.com> <19990120132519.A493@spinnaker.rhein.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Roland Rosenfeld wrote:
+
+> On Sun, 10 Jan 1999, Richard Hawes wrote:
+>
+> > Optimization by using a cache file:
+> > bug fix for rc:
+> >     now locks configuration
+>
+> Is this a good idea? Can we be sure, that /var is mounted at the
+> moment, when rc is run? Otherwise this will lock the system...
+> The same problem I see with your ideas about a "cache file", which has
+> to be written on an existing and writable filesystem...
+>
+> Or can we be sure that all of this is done in rcS before rc is
+> started?
+
+If the previous run level is N (only during startup), then it will not
+use the lock file.
+The configuration is unlocked before any commands are executed so that
+halt and reboot won't leave
+lock files on another partition.
+
+The configuration is supposed to be locked by the rc script to make certain other processes don't lock it and begin
+
+to modify it while rc is running.  This is actually a bug fix.
+
+A lockfile contains the PID of the process that locked it.  If that process does
+
+not exist, the file is removed.  If the process does exist, it will wait for a while (40 seconds),
+
+then send it the term signal, wait for a while (40 seconds), then send it the kill signal and then remove the lockfile.
+
+The rc file prints "locking" and " ." are printed every 4 seconds.
+
+The "cache file" is stored in /etc/runlevel.cache. It contains arrays of start commands.
+
+The rc script will warn you when rcconfig needs to be run again to update
+
+the `cache file'.
+
+debian uses /etc/init.d/rcS for startup,  but other linux systems might use this.
+
+rcS should be optimized, also.  Repetitive string interpolation to build a list is a
+
+slow and clumsy way of doing things.
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 28 Jan 1999 01:07:12 +0000
+Received: (qmail 9572 invoked from network); 28 Jan 1999 01:07:11 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 28 Jan 1999 01:07:11 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id UAA20659;
+	Wed, 27 Jan 1999 20:07:04 -0500 (EST)
+Received: from dayoh-a208.gemair.com(209.115.69.208) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma020613; Wed, 27 Jan 99 20:06:32 -0500
+Sender: rh@rcinet.com
+Message-ID: <36AFB7DB.1B50A7F6@gemair.com>
+Date: Thu, 28 Jan 1999 01:05:32 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: 31018@bugs.debian.org
+CC: Roland Rosenfeld <roland@spinnaker.rhein.de>,
+        Martin Schulze <joey@infodrom.north.de>
+Subject: Re: #31018: file-rc: Optimization
+References: <19981230123853.B3196@finlandia.artis.uni-oldenburg.de> <369926E6.2E963B9A@gemair.com> <19990120132519.A493@spinnaker.rhein.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+I changed the rcS file so that it gets the command list from the output
+of a function
+using backticks to avoid repeated growing string interpolation.
+
+The rc file could easily create start and stop lists the same way.
+
+Optimizing the start list would be trickier.  (Maybe the runlevel.cache
+should only
+have the optimized start lists.  Comments?)
+
+I changed both rc and rcS to use sourcing of *.sh files the same way the
+other rcS file does it.
+
+I changed previous back to prevlevel since rcS, and rcS.links both use
+it.
+
+The changed versions are at:  http://www.dma.org/~rhawes/programs/rc.tgz
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+
+
+
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 28 Jan 1999 10:42:46 +0000
+Received: (qmail 13841 invoked from network); 28 Jan 1999 10:42:46 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 28 Jan 1999 10:42:46 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id FAA14932;
+	Thu, 28 Jan 1999 05:41:42 -0500 (EST)
+Received: from dayoh-a222.gemair.com(209.115.69.222) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma014921; Thu, 28 Jan 99 05:41:15 -0500
+Sender: rh@rcinet.com
+Message-ID: <36B03E78.DC5C356C@gemair.com>
+Date: Thu, 28 Jan 1999 10:39:52 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: 31018@bugs.debian.org
+CC: Roland Rosenfeld <roland@spinnaker.rhein.de>,
+        Martin Schulze <joey@infodrom.north.de>
+Subject: Re: #31018: file-rc: Optimization
+References: <19981230123853.B3196@finlandia.artis.uni-oldenburg.de> <369926E6.2E963B9A@gemair.com> <19990120132519.A493@spinnaker.rhein.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+I changed the rcS file so that it 
+will use runlevel.fallback when runlevel.conf is not there.
+
+
+The changed version is at:  http://www.dma.org/~rhawes/programs/rc.tgz
+or at: http://www.dma.org/~rhawes/programs/rcS
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 7 Feb 1999 12:05:28 +0000
+Received: (qmail 17935 invoked from network); 7 Feb 1999 12:05:27 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 7 Feb 1999 12:05:27 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id HAA13819;
+	Sun, 7 Feb 1999 07:05:17 -0500 (EST)
+Received: from dayoh-a234.gemair.com(209.115.69.234) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma013811; Sun, 7 Feb 99 07:05:00 -0500
+Sender: rh@rcinet.com
+Message-ID: <36BD811D.880829E1@gemair.com>
+Date: Sun, 07 Feb 1999 12:03:41 +0000
+From: Richard Hawes <hawesr@gemair.com>
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.34 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: 31018@bugs.debian.org
+CC: Roland Rosenfeld <roland@spinnaker.rhein.de>,
+        Martin Schulze <joey@infodrom.north.de>
+Subject: Re: #31018: file-rc: Optimization
+References: <19981230123853.B3196@finlandia.artis.uni-oldenburg.de> <369926E6.2E963B9A@gemair.com> <19990120132519.A493@spinnaker.rhein.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+
+Because rc is not used for startup, but only to change run levels,
+the rc and rcconfig were changed to not incorporate runlevel S into the
+arrays.
+array indexes now use runlevel instead of runlevel + 1.
+
+umask 022 added to rc,
+rc will now usr runlevel.cache if either Startlist[runlevel] or
+StopList[runlevel]
+is not empty (not just Startlist).
+
+The changed version is at:  http://www.dma.org/~rhawes/programs/rc.tgz
+or at: http://www.dma.org/~rhawes/programs/[rc|rcconfig]
+
+--
+Richard L. Hawes
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 7 Feb 1999 14:53:42 +0000
+Received: (qmail 17442 invoked from network); 7 Feb 1999 14:53:42 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 7 Feb 1999 14:53:42 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id JAA25027
+	for <31018@bugs.debian.org>; Sun, 7 Feb 1999 09:53:40 -0500 (EST)
+Received: from dayoh-a251.gemair.com(209.115.69.251) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma025005; Sun, 7 Feb 99 09:53:24 -0500
+Received: by gemair.com
+	via sendmail from stdin
+	id <m109VZI-00014M9@debian> (Debian Smail3.2.0.101)
+	for 31018@bugs.debian.org; Sun, 7 Feb 1999 09:52:16 -0500 (EST) 
+Message-Id: <m109VZI-00014M9@debian>
+From: hawesr@gemair.com (Richard Hawes)
+Subject: file-rc optimization
+To: 31018@bugs.debian.org
+Date: Sun, 7 Feb 1999 09:52:15 -0500 (EST)
+Precedence: special-delivery
+X-Mailer: ELM [version 2.4ME+ PL39 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+using:
+            case $runlevel in
+                ${ON_LEVELS//,/ | /} )
+                        echo "$CMD"
+            esac
+instead of the function element() 
+is twice as fast as the last version of my rcS
+new rcS available at: http://www.dma.org/~rhawes/programs/rc.tgz
+or at: www.dma.org/~rhawes/programs/rcS
+
+--
+Richard L. Hawes  
+email: rhawes@dmapub.dma.org   web:  http://www.dma.org/~rhawes
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 7 Feb 1999 15:12:18 +0000
+Received: (qmail 18939 invoked from network); 7 Feb 1999 15:12:18 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 7 Feb 1999 15:12:18 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id KAA29257
+	for <31018@bugs.debian.org>; Sun, 7 Feb 1999 10:12:17 -0500 (EST)
+Received: from dayoh-a245.gemair.com(209.115.69.245) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma029248; Sun, 7 Feb 99 10:12:06 -0500
+Received: by gemair.com
+	via sendmail from stdin
+	id <m109VrF-00014MC@debian> (Debian Smail3.2.0.101)
+	for 31018@bugs.debian.org; Sun, 7 Feb 1999 10:10:49 -0500 (EST) 
+Message-Id: <m109VrF-00014MC@debian>
+From: hawesr@gemair.com (Richard Hawes)
+Subject: file-rc optimization
+To: 31018@bugs.debian.org
+Date: Sun, 7 Feb 1999 10:10:49 -0500 (EST)
+X-Mailer: ELM [version 2.4ME+ PL39 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+correction: last message I sent should read:
+                ${ON_LEVELS//,/ | } )
+not
+                ${ON_LEVELS//,/ | /} )
+rcS changed
+--
+Richard L. Hawes  
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 7 Feb 1999 16:41:04 +0000
+Received: (qmail 31061 invoked from network); 7 Feb 1999 16:41:04 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 7 Feb 1999 16:41:04 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id LAA06435
+	for <31018@bugs.debian.org>; Sun, 7 Feb 1999 11:41:03 -0500 (EST)
+Received: from dayoh-a247.gemair.com(209.115.69.247) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma006423; Sun, 7 Feb 99 11:40:34 -0500
+Received: by gemair.com
+	via sendmail from stdin
+	id <m109XEn-00014QC@debian> (Debian Smail3.2.0.101)
+	for 31018@bugs.debian.org; Sun, 7 Feb 1999 11:39:13 -0500 (EST) 
+Message-Id: <m109XEn-00014QC@debian>
+From: hawesr@gemair.com (Richard Hawes)
+Subject: file-rc optimization
+To: 31018@bugs.debian.org
+Date: Sun, 7 Feb 1999 11:39:13 -0500 (EST)
+X-Mailer: ELM [version 2.4ME+ PL39 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+fix bug I introduced 4 hours ago into rcconfig, on web site now
+
+From bug2mail Sun Oct  1 22:48:16 CEST 2000
+Received: (at 31018) by bugs.debian.org; 7 Feb 1999 20:18:34 +0000
+Received: (qmail 32481 invoked from network); 7 Feb 1999 20:18:34 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 7 Feb 1999 20:18:34 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id PAA00904
+	for <31018@bugs.debian.org>; Sun, 7 Feb 1999 15:18:28 -0500 (EST)
+Received: from dayoh-a178.gemair.com(209.115.69.178) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma000877; Sun, 7 Feb 99 15:18:24 -0500
+Received: by gemair.com
+	via sendmail from stdin
+	id <m109adR-00014LC@debian> (Debian Smail3.2.0.101)
+	for 31018@bugs.debian.org; Sun, 7 Feb 1999 15:16:53 -0500 (EST) 
+Message-Id: <m109adR-00014LC@debian>
+From: hawesr@gemair.com (Richard Hawes)
+Subject: file-rc optimization
+To: 31018@bugs.debian.org
+Date: Sun, 7 Feb 1999 15:16:52 -0500 (EST)
+X-Mailer: ELM [version 2.4ME+ PL39 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+rcS must use:
+eval "case $runlevel in ${ON_LEVELS//,/ | } ) echo $CMD ;; esac"
+
+still speeds up quite a bit over function element
+fix on web site
+--
+Richard L. Hawes  
+
+From bug2mail Sun Oct  1 22:48:17 CEST 2000
+Received: (at 31018) by bugs.debian.org; 11 Feb 1999 03:50:09 +0000
+Received: (qmail 16765 invoked from network); 11 Feb 1999 03:50:08 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 11 Feb 1999 03:50:08 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id WAA01946
+	for <31018@bugs.debian.org>; Wed, 10 Feb 1999 22:50:07 -0500 (EST)
+Received: from dayoh-a253.gemair.com(209.115.69.253) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma001921; Wed, 10 Feb 99 22:49:40 -0500
+Received: from localhost.uucp (really [127.0.0.1]) by gemair.com
+	via smail with esmtp (ident hawesr using rfc1413)
+	id <m10An85-00014SC@debian> (Debian Smail3.2.0.101)
+	for <31018@bugs.debian.org>; Wed, 10 Feb 1999 22:49:29 -0500 (EST) 
+Message-Id: <m10An85-00014SC@debian>
+To: 31018@bugs.debian.org
+Subject: file-rc optimization
+Date: Wed, 10 Feb 1999 22:49:29 -0500
+From: Richard Hawes <hawesr@gemair.com>
+
+rcconfig now checks for sed and egrep before continuing
+it will fallback to runlevel.fallback when runlevel.conf is missing
+to accomodate rc, it has an option -l, for no configuration locking
+
+rc now will call rcconfig when there is no usable rc cache file
+if that fails or the generated cache file is not usable,
+it executes the last resort command ( /etc/init.d/single )
+
+the files are available at: http://www.dma.org/~rhawes/programs/
+rc.tgz once again contains the test files.
+
+--
+Richard L. Hawes  
+email: rhawes@dma.org   web:  http://www.dma.org/~rhawes
+
+From bug2mail Sun Oct  1 22:48:17 CEST 2000
+Received: (at 31018) by bugs.debian.org; 14 Feb 1999 04:08:23 +0000
+Received: (qmail 8528 invoked from network); 14 Feb 1999 04:08:23 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 14 Feb 1999 04:08:23 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id XAA12277
+	for <31018@bugs.debian.org>; Sat, 13 Feb 1999 23:08:21 -0500 (EST)
+Received: from dayoh-a250.gemair.com(209.115.69.250) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma012270; Sat, 13 Feb 99 23:08:00 -0500
+Received: from localhost.uucp (really [127.0.0.1]) by gemair.com
+	via smail with esmtp (ident hawesr using rfc1413)
+	id <m10BsP3-00014RC@debian> (Debian Smail3.2.0.101)
+	for <31018@bugs.debian.org>; Sat, 13 Feb 1999 22:39:29 -0500 (EST) 
+Message-Id: <m10BsP3-00014RC@debian>
+To: 31018@bugs.debian.org
+Subject: file-rc optimization/fail-safe
+Date: Sat, 13 Feb 1999 22:39:29 -0500
+From: Richard Hawes <hawesr@gemair.com>
+
+
+To accomodate rc, it has an option -s, for source mode loading.  To share
+functions and variables, it loads rc in sourcing mode (-s).
+(both were much rewritten just recently.)
+
+Improved fail-safe:
+
+`rcS' will look for START_UP in runlevel.cache and
+runlevel.cache_fallback.  Then the rcS file will try to generate lists
+from runlevel.conf and then runlevel.fallback
+
+I added README to:
+
+http://www.dma.org/~rhawes/rc.tgz
+
+--
+Richard L. Hawes  
+email: rhawes@dma.org   web:  http://www.dma.org/~rhawes
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+
+From bug2mail Sun Oct  1 22:48:17 CEST 2000
+Received: (at 31018) by bugs.debian.org; 25 Feb 1999 23:31:40 +0000
+Received: (qmail 20416 invoked from network); 25 Feb 1999 23:31:33 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 25 Feb 1999 23:31:33 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id SAA21485
+	for <31018@bugs.debian.org>; Thu, 25 Feb 1999 18:31:28 -0500 (EST)
+Received: from dayoh-a192.gemair.com(209.115.69.192) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma021472; Thu, 25 Feb 99 18:31:20 -0500
+Received: from localhost.uucp (really [127.0.0.1]) by gemair.com
+	via smail with esmtp (ident hawesr using rfc1413)
+	id <m10GAEB-00014JC@debian> (Debian Smail3.2.0.101)
+	for <31018@bugs.debian.org>; Thu, 25 Feb 1999 18:29:59 -0500 (EST) 
+Message-Id: <m10GAEB-00014JC@debian>
+To: 31018@bugs.debian.org
+Subject: Why not source all scripts in /etc/init.d for speed?
+Date: Thu, 25 Feb 1999 18:29:58 -0500
+From: Richard Hawes <hawesr@gemair.com>
+Status: RO
+Content-Length: 1730
+Lines: 61
+
+
+I filed a related bug report.
+
+Bug#33826: Acknowledgement (section 3.4.2 clarify naming .sh scripts in
+/etc/init.d/)
+
+>Sentence 2 of paragraph 1 says: "These scripts should be named
+>/etc/init.d/package,"
+>when should scripts have a .sh suffix?
+>
+>rc and rcS scripts optimize by sourcing .sh scripts
+>All bash scripts could be sourced
+>
+>Should all scripts be bash scripts
+>or should all bash compatible scripts have a .sh suffix
+>Is the .sh suffix just a matter of historical use or does it matter?
+>
+
+Recent improvements:
+I changed rc and rcS to source all scripts in /etc/init.d
+
+rcconfig:
+This will determine if start list has changed for the current run level;
+if so, it will do one of the following:
+
+1) If the -c option is used, rcconfig will call ExecLists "" to `correct'
+the current run level processes.
+
+2) Otherwise, rcconfig generates the file `/etc/runlevel.no_optimize'
+to let rc know not to optimize the start command list.
+
+	-	-
+
+rc will not use the optimized start command list ( OPTIMAL_START )
+when the file `runlevel.no_optimize' is present or when it cannot use
+the primary cache file.  rc then removes `runlevel.no_optimize'.
+
+	-	-
+
+the other files are available at:
+
+http://www.dma.org/~rhawes/programs/
+
+http://www.dma.org/~rhawes/programs/rc_readme
+
+http://www.dma.org/~rhawes/programs/rc
+
+http://www.dma.org/~rhawes/programs/rcS
+
+http://www.dma.org/~rhawes/programs/rcconfig
+
+new versions of programs and test scripts that make it easy to test
+configuration lockfile handling which are in an tar - gzip'ed file at:
+
+http://www.dma.org/~rhawes/programs/rc.tgz
+
+
+--
+Richard L. Hawes  
+email: rhawes@dma.org   web:  http://www.dma.org/~rhawes
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+
+From bug2mail Sun Oct  1 22:48:17 CEST 2000
+Received: (at 31018) by bugs.debian.org; 20 Jul 1999 12:33:10 +0000
+Received: (qmail 16674 invoked from network); 20 Jul 1999 12:33:09 -0000
+Received: from postfix.rhein.de (193.175.27.8)
+  by master.debian.org with SMTP; 20 Jul 1999 12:33:09 -0000
+Received: by postfix.rhein.de (Postfix, from userid 5)
+	id 21AC412949; Tue, 20 Jul 1999 14:32:41 +0200 (MET DST)
+Received: from luv (luv)
+	by aiur (rbsmtp 2.3pl8bMS);
+	Tue Jul 20 14:32:40 1999
+	using /var/spool/bsmtp/out/q06622.03.932473960
+Received: from spinnaker.rhein.de (roland@spinnaker.rhein.de [193.175.27.129])
+	by luv.rhein.de (8.9.3/8.9.3/Debian/GNU) with ESMTP id LAA28283;
+	Tue, 20 Jul 1999 11:45:34 +0200
+Received: (from roland@localhost)
+	by spinnaker.rhein.de (8.9.3/8.9.3/Debian/GNU) id LAA24723;
+	Tue, 20 Jul 1999 11:44:02 +0200
+Date: Tue, 20 Jul 1999 11:44:01 +0200
+From: Roland Rosenfeld <roland@debian.org>
+To: Richard Hawes <hawesr@gemair.com>
+Cc: 31018@bugs.debian.org
+Subject: Re: Why not source all scripts in /etc/init.d for speed?
+Message-ID: <19990720114401.J458@spinnaker.rhein.de>
+References: <m10GAEB-00014JC@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/0.96.3i
+In-Reply-To: <m10GAEB-00014JC@debian>
+Sender: roland@spinnaker.rhein.de
+Content-Length: 2604
+Lines: 64
+
+Hi Richard!
+
+On Thu, 25 Feb 1999, Richard Hawes wrote:
+
+> I filed a related bug report.
+
+> Bug#33826: Acknowledgement (section 3.4.2 clarify naming .sh scripts
+> in /etc/init.d/)
+
+> Recent improvements:
+> I changed rc and rcS to source all scripts in /etc/init.d
+
+IMHO this is unacceptable, because you cannot be sure, that all files
+in /etc/init.d are sh-scripts. It may also be possible that a file in
+/etc/init.d is a bash-, (t)csh- or perl-script. Except this, sourcing
+the scripts may cause problems with variables which may be set in one
+init.d script and which are kept for the others.
+
+> http://www.dma.org/~rhawes/programs/rc.tgz
+
+I had a deep look into your optimized version, but I have a problem
+with it: In contrast to 0.4.8 your optimizations are quite hard to
+understand and so I see a high risk of hidden bugs. In contrast to
+this 0.4.8 is quite readable and easier to understand.
+
+Except this I don't completely like the fact, that you need grep and
+sed as external programs for a job which can be done without calling
+external programs.
+
+Another question is, whether all this is worth the effort. I did some
+performance tests and found out that rc from file-rc 0.4.8 runs in
+less than a second on my AMD K6/200 (in the debug mode without really
+starting the init.d scripts). So I tried the same on my old 486DX40.
+With my quite large runlevel.conf file-rc 0.4.8 run with bash takes
+5-13 seconds for a runlevel change. IMHO this is really acceptable for
+my long runlevel.conf on this old machine. When I run this script with 
+ash instead of bash (since file-rc 0.4.8 rc does no longer need bash,
+but only a POSIX shell like ash) it only runs 2.3 seconds.
+
+Then I tried your optimized scripts on the 486DX40. Your rcconfig
+takes 25 seconds, while your rc takes 3 seconds (if the cache file was 
+created before). When I look at my system, installing new packages
+(which change runlevel.conf) happens more often than a runlevel
+change. So your "optimizations" slow down my system (okay, maybe I'm
+not the average user :-)
+
+On debian-devel we are just talking about making /bin/sh a symlink to
+ash instead of bash, so file-rc 0.4.8 with ash is already faster than
+your scripts which need bash...
+
+That's why I personally don't see that your optimizations are an
+advantage, but they bring me the drawback of being much harder to
+read.
+
+So I don't think that I (as the new maintainer of file-rc) won't merge
+your optimizations into file-rc...
+
+Ciao
+
+        Roland
+
+-- 
+ * roland@spinnaker.de * http://www.spinnaker.de/ *
+ PGP: 1024/DD08DD6D   2D E7 CC DE D5 8D 78 BE  3C A0 A4 F1 4B 09 CE AF
+
+From bug2mail Sun Oct  1 22:48:17 CEST 2000
+Received: (at 31018) by bugs.debian.org; 18 Aug 1999 03:54:12 +0000
+Received: (qmail 8117 invoked from network); 18 Aug 1999 03:54:11 -0000
+Received: from wythdantis.gemair.com (209.115.68.31)
+  by master.debian.org with SMTP; 18 Aug 1999 03:54:11 -0000
+Received: (from smap@localhost)
+	by wythdantis.gemair.com (8.8.7/8.8.5) id XAA02316
+	for <31018@bugs.debian.org>; Tue, 17 Aug 1999 23:54:10 -0400 (EDT)
+Received: from dayoh-a250.gemair.com(209.115.69.250) by wythdantis.gemair.com via smap (V2.0beta)
+	id xma002282; Tue, 17 Aug 99 23:53:50 -0400
+Received: from localhost ([127.0.0.1] ident=hawesr)
+	by zyx.hawesr.gemair.com with esmtp (Exim 2.05 #1)
+	id 11GvxZ-0000wK-00
+	for 31018@bugs.debian.org; Tue, 17 Aug 1999 23:00:17 -0400
+To: 31018@bugs.debian.org
+Subject: Re: Why not source all scripts in /etc/init.d for speed? 
+In-Reply-To: Your message of "Tue, 20 Jul 1999 11:44:01 +0200."
+             <19990720114401.J458@spinnaker.rhein.de> 
+Date: Tue, 17 Aug 1999 23:00:17 -0400
+From: Richard Hawes <hawesr@gemair.com>
+Message-Id: <E11GvxZ-0000wK-00@zyx.hawesr.gemair.com>
+Content-Length: 3622
+Lines: 94
+
+In message <19990720114401.J458@spinnaker.rhein.de>, Roland Rosenfeld writes:
+> Hi Richard!
+> 
+> On Thu, 25 Feb 1999, Richard Hawes wrote:
+> 
+> > I filed a related bug report.
+> 
+> > Bug#33826: Acknowledgement (section 3.4.2 clarify naming .sh scripts
+> > in /etc/init.d/)
+> 
+> > Recent improvements:
+> > I changed rc and rcS to source all scripts in /etc/init.d
+> 
+> IMHO this is unacceptable, because you cannot be sure, that all files
+> in /etc/init.d are sh-scripts. It may also be possible that a file in
+> /etc/init.d is a bash-, (t)csh- or perl-script. Except this, sourcing
+> the scripts may cause problems with variables which may be set in one
+> init.d script and which are kept for the others.
+
+I was just proving that it works.
+Now, why doesn't the policy require all posix shell scripts to end in .sh?? 
+Or require all non-POSIX scrits to have an appropriate suffix??
+(For the advantage I just mentioned. )
+
+> 
+> > http://www.dma.org/~rhawes/programs/rc.tgz
+> 
+> I had a deep look into your optimized version, but I have a problem
+> with it: In contrast to 0.4.8 your optimizations are quite hard to
+> understand and so I see a high risk of hidden bugs. In contrast to
+> this 0.4.8 is quite readable and easier to understand.
+> 
+> Except this I don't completely like the fact, that you need grep and
+> sed as external programs for a job which can be done without calling
+> external programs.
+
+growing string interpolation is slow.
+
+The previous maintainer mentioned that, Right now, it will get to level one without them.
+
+> 
+> Another question is, whether all this is worth the effort. I did some
+> performance tests and found out that rc from file-rc 0.4.8 runs in
+> less than a second on my AMD K6/200 (in the debug mode without really
+> starting the init.d scripts). So I tried the same on my old 486DX40.
+> With my quite large runlevel.conf file-rc 0.4.8 run with bash takes
+> 5-13 seconds for a runlevel change. IMHO this is really acceptable for
+> my long runlevel.conf on this old machine. When I run this script with 
+> ash instead of bash (since file-rc 0.4.8 rc does no longer need bash,
+> but only a POSIX shell like ash) it only runs 2.3 seconds.
+
+I suppose, if it really mattered, it can be written without depending on
+bash arrays and made POSIX compliant. (using eval statements)
+
+I suppose that it depends on the behaviour of scripts that are 
+rerun for each run level change when they are not suppose to be rerun.
+
+apparently, you did not test it for changes in runlevel (from 2 to 3).
+(one thing that probably only advanced users would bother with).
+
+apparently, you did not read the readme file.
+
+The newer file-rc still has most of the problems that I mention.
+
+There is no fail-safe for rcS in case the config file is missing.
+(Try using the backed up config file)
+
+rc still doesn't prevent a hung system in the event that both
+config files are missing. (like switch to level 1).
+
+
+The important advantages are:
+	1) do not start daemons that are already started when changing runlevels
+	(leave report open for this wish list item.)
+
+	2) extra fail safe protection.
+
+	3) smarter optimization, skip the optimization when
+	optimization would mess up the runlevel configuration
+	because of user changes to the configuration.
+	(complicated, but more user friendly, sorry).
+
+
+I haven't worked on it for a long time, and I probably won't for a long time.
+
+Still, the bug should be left open for the wish list item 1.
+
+Please make file-rc more fail-safe.
+
+--
+Richard Hawes  
+email: rhawes@dma.org   web:  http://www.dma.org/~rhawes
+pgp public key: http://www.dma.org/~rhawes/pgp/public_key.asc
+
+
+From bug2mail Sun Oct  1 22:48:17 CEST 2000
+Received: (at 31018) by bugs.debian.org; 18 Aug 1999 13:18:07 +0000
+Received: (qmail 4591 invoked from network); 18 Aug 1999 13:18:00 -0000
+Received: from postfix.rhein.de (193.175.27.8)
+  by master.debian.org with SMTP; 18 Aug 1999 13:18:00 -0000
+Received: by postfix.rhein.de (Postfix, from userid 5)
+	id 758E412918; Wed, 18 Aug 1999 15:17:28 +0200 (MET DST)
+Received: from luv (luv)
+	by aiur (rbsmtp 2.3pl8bMS);
+	Wed Aug 18 15:17:28 1999
+	using /var/spool/bsmtp/out/q15851.03.934982248
+Received: from spinnaker.rhein.de (roland@spinnaker.rhein.de [193.175.27.129])
+	by luv.rhein.de (8.9.3/8.9.3/Debian/GNU) with ESMTP id NAA11967;
+	Wed, 18 Aug 1999 13:52:40 +0200
+Received: (from roland@localhost)
+	by spinnaker.rhein.de (8.9.3/8.9.3/Debian/GNU) id NAA05141;
+	Wed, 18 Aug 1999 13:52:37 +0200
+Date: Wed, 18 Aug 1999 13:52:36 +0200
+From: Roland Rosenfeld <roland@debian.org>
+To: Richard Hawes <hawesr@gemair.com>, 31018@bugs.debian.org
+Subject: Re: Bug#31018: Why not source all scripts in /etc/init.d for speed?
+Message-ID: <19990818135236.B1522@spinnaker.rhein.de>
+References: <19990720114401.J458@spinnaker.rhein.de> <E11GvxZ-0000wK-00@zyx.hawesr.gemair.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/0.96.4i
+In-Reply-To: <E11GvxZ-0000wK-00@zyx.hawesr.gemair.com>
+Sender: roland@spinnaker.rhein.de
+Content-Length: 5170
+Lines: 127
+
+On Tue, 17 Aug 1999, Richard Hawes wrote:
+
+> > > I changed rc and rcS to source all scripts in /etc/init.d
+
+> > IMHO this is unacceptable, because you cannot be sure, that all
+> > files in /etc/init.d are sh-scripts.
+
+> I was just proving that it works.
+
+But it is a risk, until there is no definition in the Debian policy,
+that a script in init.d has to be POSIX sh compatible.  If you want to 
+change the policy, please file a proposal to the bug tracking system
+against the debian-policy package.
+
+> Now, why doesn't the policy require all posix shell scripts to end
+> in .sh??  Or require all non-POSIX scrits to have an appropriate
+> suffix??  (For the advantage I just mentioned. )
+
+Don't ask me, ask the policy maintainer ;-)
+AFAIK the policy doesn't say anything about the suffixes in
+/etc/init.d.  All I was able to find out about this was in
+/usr/doc/sysvinit/README.runlevels.gz (sysvinit is the package which
+includes the traditional symlink-based /etc/init.d/rc).
+
+file-rc tries to be a plug-in replacement for the sysvinit rc, so it
+has to be as compatible as possible.  sysvinit-rc implements the
+following ".sh" optimization:
+
+   If a scripts has the ".sh" suffix it is a bourne shell script and
+   MAY be handled in an optimized manner. The behaviour of executing the
+   script in an optimized way will not differ in any way from it being
+   forked and executed in the regular way.
+
+That's what file-rc implements.
+
+If you want to change this behavior, please file a (whishlist) but
+report against the sysvinit package.
+
+> I suppose that it depends on the behaviour of scripts that are rerun
+> for each run level change when they are not suppose to be rerun.
+
+> apparently, you did not test it for changes in runlevel (from 2 to
+> 3).  (one thing that probably only advanced users would bother
+> with).
+
+I thought about changing this, but file-rc has to be compatible to
+sysvinit-rc and the latter one tells me in README.runlevels:
+
+   As an optimalization, a check is made for each "service" to see if
+   it was already running in the previous runlevel. If it was, and there
+   is no K (stop) script present for it in the new runlevel, there is
+   no need to start it a second time so that will not be done.
+
+   On the other hand, if there was a K script present, it is assumed the
+   service was stopped on purpose first and so needs to be restarted.
+
+   We MIGHT make the same optimization for stop scripts as well-
+   if no S script was present in the previous runlevel, we can assume
+   that service was not running and we don't need to stop it either.
+   In that case we can remove the "coming from level N" special case
+   mentioned above in 2). But right now that has not been implemented.
+
+The first mentioned optimization (don't start a service, if it was
+started in the previous runlevel and not stopped in the new runlevel)
+is implemented in sysvinit-rc as well as in file-rc:
+
+        if element "$prevlevel" in "$level" && ! is_elem $CMD $STOPLIST
+        then
+            continue
+        fi
+
+The proposed ("MIGHT") optimization for stop scripts isn't implemented 
+in sysvinit-rc, so it is also not implemented in file-rc for
+compatibility reasons.
+
+I don't think that it is a good idea to change the behavior of rc when
+installing file-rc, because file-rc is written as a plug-in
+replacement of sysvinit-rc which behaves in the same way but using a
+file instead of all these ugly symlinks.  If you want a different
+behavior, it may be a good idea to create a different package, which
+explicitly mentions in the package description (and when installing it
+the first time) that it changes the behavior of rc.  Maybe such a
+package could be named r2d2 like the package file-rc is based on (the
+upstream author implemented those optimizations in a later version,
+but it was changed in file-rc because of compatibility reasons).
+ 
+> There is no fail-safe for rcS in case the config file is missing.
+> (Try using the backed up config file)
+
+I missed this point until now.  Okay, I implemented the fallback to
+runlevel.fallback into rcS, if runlevel.conf is missing in the
+forthcoming 0.5.1 release of file-rc.
+
+> rc still doesn't prevent a hung system in the event that both config
+> files are missing. (like switch to level 1).
+
+rcS now falls back to /dev/null in this case (which means to start
+/etc/rc.boot/* and /sbin/setup.sh if available).
+
+rc 0.5.1 will fall back to /etc/init.d/single if it is available or
+to "init -t1 S" otherwise.
+
+> The important advantages are:
+
+> 	1) do not start daemons that are already started when changing
+> 	   runlevels (leave report open for this wish list item.)
+
+Please file a separate bug report against sysvinit for this.  file-rc
+only emulates the behavior of sysvinit rc and I won't change this
+before sysvinit (and /usr/doc/sysvinit/README.runlevels.gz) is
+changed.
+
+> 	2) extra fail safe protection.
+
+This will be done in 0.5.1.
+
+> Still, the bug should be left open for the wish list item 1.
+
+Please file a separate bug report against sysvinit!
+
+Ciao
+
+        Roland
+
+-- 
+ * roland@spinnaker.de * http://www.spinnaker.de/ *
+ PGP: 1024/DD08DD6D   2D E7 CC DE D5 8D 78 BE  3C A0 A4 F1 4B 09 CE AF
+

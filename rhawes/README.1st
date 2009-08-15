@@ -1,0 +1,15 @@
+This directory contains Richard Hawes' <hawesr@gemair.com> rewrite of
+rc/rcS, which can be found at http://www.dma.org/~rhawes/programs/.
+
+I personally don't like these "optimizations", because it uses more
+external programs than the current version and because it is much
+harder to understand (for me).
+
+I placed the files in this directory, so if someone in the future will
+use them, he can start here.
+
+The complete discussion about this changes can be found in mbox format
+in 31018.mbox.
+
+Roland Rosenfeld <roland@debian.org>
+$Id: README.1st,v 1.1 2000-10-01 20:59:50 roland Exp $

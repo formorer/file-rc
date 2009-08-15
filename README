@@ -1,0 +1,105 @@
+A config file for runlevels
+---------------------------
+
+The traditional "SysV" scheme of implementing runlevels is through links
+in "/etc/rc?.d/*". The main problem with this links is that you can't
+get easily a survey of your setup.
+I rewrote the "rc"-program so it handles _one_ config file instead of
+many links in "/etc/rc?.d/*". Here's an extract from it's config file:
+
+        # This is the configuration file for /etc/debian/runlevel.conf
+        #
+        #Format:
+        #<sort> <off>   <on>            <script>
+        05      -       0               /etc/init.d/halt
+        05      -       1               /etc/init.d/single
+        05      -       6               /etc/init.d/reboot
+        10      0,1,6   2,3,4,5         /etc/init.d/sysklogd
+        12      0,1,6   2,3,4,5         /etc/init.d/kerneld
+[..]
+        89      0,1,6   2,3,4,5         /etc/init.d/cron
+        99      -       2,3,4,5         /etc/init.d/rmnologin
+        99      0,1,6   2,3,4,5         /etc/init.d/xdm
+
+
+The syntax should be fairly obvious:
+
+      * The first column is the sort criteria for starting and
+        stopping (reverse order) the scripts.
+
+      * The second column consists of a comma-seperated list of
+        runlevels in which the script should be switched "off"
+        - or -
+        a single "-" if the script should never be stopped (within
+        that sort-number).
+
+      * The third column consists of a comma-seperated list of
+        runlevels in which the script should be switched "on" 
+        - or -
+        a single "-" if the script should never be started (with
+        that sort-number).
+
+      * The last column specifies the full name of the script.
+
+
+The alternate "rc"-programm uses built-in bash functions only and does
+not rely on any external program installed. Performance is quite good
+and delays execution of a script 0.075 seconds (average value on an old
+ISA-486).
+
+A script to convert your current link-setup into a configuration file
+is available as well as an almost compatible "update-rc.d"-program. To
+edit the configuration file you can use your favourite editor. :-)
+With the files in this directory try
+
+        ./rclink2file.sh > runlevel.conf
+        export PRELEVEL=N    # previous runlevel, N = Booting
+        ./rc 2               # "switch" to runlevel "2"
+
+To be on the save side, the alternate "rc" only prints the commands
+it would execute for now.
+The disadvantages (which don't apply to the method with links) as far
+as I can see them:
+
+      * Modifications require the whole file to be rewritten, which
+        is a source for errors.
+
+      * Inserting and removing is not done via well-understood utilities
+        like "ln" and "rm".
+
+      * The "sort numbers" are not evaluated by "rc" (this could be
+        seen as a feature, too).
+
+      * There is almost no experience with this new technique.
+
+
+Advantages beside the easeness:
+
+      * You can easily make backups of the config file and use
+	standard software like "diff" to compare "working" and
+	"not working" configuration files. Try that with a bunch
+        of several hundred symlinks.
+
+      * No special tool required, you can use your favorite editor
+        to maintain the configuration manually.
+
+      * Symbolic runlevels like "reboot" can be easily supported
+        (although the numbers are more comprehensive).
+
+      * The sort-numbers could be replaced by symbolic names, too.
+
+      * "Update-rc.d" is quite fast (2-3s on an old ISA-486 = up to
+        10 times faster than the old one).
+
+
+Of course even more complicated setups can be expressed in the
+configuration file:
+
+        #Format:
+        #<sort> <on-> <off-levels>  <script>
+        15      0       -               /etc/init.d/foo
+        17      1       -               /etc/init.d/foo
+        19      6       -               /etc/init.d/foo
+        14      -       5               /etc/init.d/foo
+        80      -       2               /etc/init.d/foo
+        84      -       3,4             /etc/init.d/foo

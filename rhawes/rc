@@ -1,0 +1,434 @@
+#!/bin/bash
+# rc -- start and stop services for the different runlevels of the SysV init.
+# $Id: rc,v 0.60 1999/11/20 14:13:57 hr Exp $
+# Author:   Richard Hawes <rhawes@dma.org>
+#
+# Experimental: To tell the scripts they are not called manually.
+export RC_VERSION="000.007" # checked when cross sourcing with rcconfig
+#
+#
+# The following comments were taken from the rc script written by
+# Winfried Trümper <winni@xpilot.org>
+#
+# "Unlike traditional implementations it avoids the messy scheme with
+# expressing the setup through links but reads a central config file
+# instead. From a technical point of view both methods are almost
+# equivalent."
+#
+# "To be compatible with the common configuration scheme in the Linux-world,
+# every script has two states: "on" or "off". The effect of this is that
+# once it is switched on, it is never started again when the runlevel changes
+# (it is only executed to switch it off if necessary)."
+#
+# "This rc script is different from Trümper's because it
+# uses a cache file created by rcconfig to speed things up"
+
+set -h
+# make fd 3 copy of standard output
+exec 3>&1
+
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+umask 022
+
+# Set onlcr to avoid staircase effect.
+stty onlcr 0>&1 || :
+
+# Ignore CTRL-C only in this shell, so we can interrupt subprocesses.
+trap ":" INT QUIT TSTP
+
+# FUNCTIONS
+# Experimental: may be called by sourced scripts
+#       if RC_VERSION is null, source rc in source mode
+function Warn() { # Error Handler
+	echo -e "\n\a$0: $@"  >&2
+	sleep $_WarnPause
+}
+
+function _Element() {
+	declare element="$1"
+	shift
+	case $element in
+	"${1:-}" | "${2:-}" | "${3:-}" | "${4:-}" | "${5:-}" | "${6:-}" | "${7:-}" | "${8:-}" | "${9:-}")
+		return 0
+	esac
+	return 1
+}
+
+#
+# Start script or program.
+#
+function _ExecCmd() {
+	local _cmd _cmd_no _list="$1"
+	shift
+	for _cmd_no in ${!_list}
+	do
+		_cmd="${_CMD_LIST[$_cmd_no]}"
+		[ -x "$_cmd" ] || continue
+		case "$_cmd" in
+		*.sh)
+			# Source shell script for speed.
+			(
+				trap - INT QUIT TSTP
+				$_RC_Debug . "$_cmd"
+			)
+			;;
+
+		*)
+			$_RC_Debug "$_cmd" $@
+			;;
+		esac
+	done
+}
+
+function _Optimal() {
+	local _cmd _cmd_no _list="$1" _status="$2"
+	shift 2
+	for _cmd_no in ${!_list}
+	do
+		_cmd="${_CMD_LIST[$_cmd_no]}"
+		[ -x "$_cmd" ] || continue
+		_Element $PREVLEVEL $(eval echo \${$_status[$_cmd_no]}) && continue
+		case "$_cmd" in
+		*.sh)
+			# Source shell script for speed.
+			(
+				trap - INT QUIT TSTP
+				$_RC_Debug . "$_cmd"
+			)
+			;;
+
+		*)
+			$_RC_Debug "$_cmd" $@
+			;;
+		esac
+	done
+}
+
+function _LockFile () {
+	declare -r \
+	lock_file="$1" \
+	sleep_time="${3:-2}"
+	declare -i ind="${2:-10}"
+	local proc_id
+
+	while let ind-="1"
+	do
+		( set -C ; echo $$ > "$lock_file"; ) &> /dev/null \
+		&& return 0
+		if ! { read proc_id < "$lock_file" \
+		&& [ "$proc_id" ] && kill -0 "$proc_id"
+		}  &> /dev/null
+		then
+			echo
+			Warn "$LINENO Removing stale lockfile '$lock_file'."
+			rm -f "$lock_file"
+			continue
+		fi
+		echo -n ". " >&3
+		sleep $sleep_time
+	done
+	echo >&3
+	echo $proc_id
+	return 1
+}
+
+function _RcHelp () {
+	cat <<EOF_HELP
+usage: rc -D -S -X -h -v <runlevel>
+Options:
+-h		: this Help file
+-v		: Version
+-D		: Debug mode
+-S		: Sourcing mode
+-X		: trace
+EOF_HELP
+}
+
+# declare unbound variables
+declare INIT_VERSION
+
+if [ "$INIT_VERSION" ]
+then
+	_OptLst="h"
+else
+	_OptLst="DSXhv"
+fi
+_RcSrcMod=""
+_RcDebug=""
+_RcTrace=""
+_WarnPause="2"
+while getopts $_OptLst _Opt
+	do
+	case $_Opt in
+		D )
+			_RcDebug="-D"
+			;;
+		X )
+			set -x
+			_RcDebug="-D"
+			_RcTrace="-X"
+			;;
+		S )
+			_RcSrcMod="t"
+			_OptLst="DX"
+			;;
+		# common user options lower case
+		v )
+			echo "rc version $RC_VERSION"
+			exit
+			;;
+		? | h )
+			if [ -z "$INIT_VERSION" ]
+			then
+				_RcHelp
+				exit 2
+			fi
+			;;
+	esac
+	done
+
+shift $(( $OPTIND-1 ))
+OPTIND="1"
+
+# debug mode
+if [ "$_RcDebug" ]
+then
+	set -eu
+	# to time script, don't wait after error message
+	_WarnPause="0"
+
+	_RC_Debug="echo"
+	echo "rc: debug note: This will look for the lock file
+	and the configuration files and rcconfig in the current directory"
+	_Etc="."
+	_Lock="."
+else
+	_Etc="/etc"
+	_Lock="/var/lock"
+fi
+
+_SULOGIN="/sbin/sulogin"
+_LckFilNam="$_Lock/runlevel.lock"
+_TmpCache="/tmp/$$.rcconfig"
+_TmpList="$_LckFilNam $_TmpCache"
+_RcCache="$_Etc/runlevel.cache"
+declare -a \
+_RcCfg=("$_Etc/runlevel.conf" "$_Etc/runlevel.fallback" )
+_MaxCfgInd="1"
+
+if [ "$_RcSrcMod" ]  ; then
+	# stop here in source mode
+	return 0
+fi
+
+## rc only ##
+
+declare -r \
+ERR_ILL_OPT="2" \
+ERR_CHKVER="3" \
+ERR_NO_RC_CFG="4" \
+ERR_MISSING_CMD="5" \
+ERR_BAD_RC_CFG="6" \
+ERR_MISSING_RC="7" \
+
+_NoOpt=""
+
+# FUNCTIONS
+
+function Gen_Chk () {
+	local runlevel
+	local sort_no  off_levels  on_levels  cmd
+	while read  sort_no  off_levels  on_levels  cmd
+	do
+		case "$sort_no" in
+		"#*"|""|"#") continue ;;
+		esac
+		# is_valid_sequence "$sort_no" || continue
+
+		echo -n ". " >&3
+
+		[ "z$off_levels" = "z-" ] && off_levels=""
+		[ "z$on_levels" = "z-" ] && on_levels=""
+		off_levels="${off_levels//,/ }"
+		on_levels="${on_levels//,/ }"
+
+		# get command no
+		cmd_no="0"
+		while :
+		do
+			[ "$cmd" = "${_CMD_LIST[$cmd_no]:-}" ] && {
+				[ "$on_levels" ] && \
+					_ON_STATUS[$cmd_no]="${_ON_STATUS[$cmd_no]:-} $on_levels"
+				[ "$off_levels" ] && \
+					_OFF_STATUS[$cmd_no]="{$_OFF_STATUS[$cmd_no]:-} $off_levels"
+				break
+			}
+			let cmd_no+="1"
+			[ "$cmd_no" -lt "${#_CMD_LIST[@]}" ] && continue
+
+			# enter new command into list
+			_CMD_LIST[$cmd_no]="$cmd"
+			_ON_STATUS[$cmd_no]="$on_levels"
+			_OFF_STATUS[$cmd_no]="$off_levels"
+			break
+		done
+				
+		for runlevel in $off_levels
+		do
+			_STOP_LIST[$runlevel]="${_STOP_LIST[$runlevel]:-} $cmd_no"
+		done
+
+		for runlevel in $on_levels
+		do
+			if [ "$runlevel" = "S" ] ; then
+				_START_UP="${_START_UP:-} $cmd_no"
+			else
+				_START_LIST[$runlevel]="${_START_LIST[$runlevel]:-} $cmd_no"
+			fi
+		done
+
+	done
+	[ ${#_CMD_LIST[@]} -gt 1 ]
+}
+
+function GenVars () {
+	local cfg ind="0"
+	echo -n "Working "
+	while :
+	do
+		cfg="${_RcCfg[$ind]}"
+		_START_LIST=("")
+		_STOP_LIST=("")
+		_CMD_LIST=("")
+		_ON_STATUS=("")
+		_OFF_STATUS=("")
+		_START_UP=""
+		if [ -s "$cfg" ]
+		then
+			if Gen_Chk < $cfg ; then
+				echo "
+Using ${cfg}."
+				break
+			fi
+		else
+			Warn "$LINENO: rc configuration file ${cfg} is missing."
+		fi
+		let ind+="1"
+		if [ "$ind" -gt "$_MaxCfgInd" ] ; then
+			Warn "$LINENO: no usable rc configuration file."
+			return $ERR_NO_RC_CFG
+		fi
+	done
+}
+
+function GenCache () {
+	declare -i xy_ind
+	local  run_level prev_level
+
+	# tag version for possible future use
+	echo "#This file was generated by $0"
+	echo "_RC_CACHE_VERSION=\"$RC_VERSION\"
+"
+	declare -p _CMD_LIST _ON_STATUS _OFF_STATUS _START_UP _START_LIST _STOP_LIST
+}
+
+function MakeCache () {
+	_NoOpt="t"
+	GenVars || return $?
+	GenCache >| "${_TmpCache}" || return $?
+	mv "$_TmpCache" "${_RcCache}"
+}
+
+# Now find out what the current and what the previous runlevel are.
+  # init SETS THESE:
+  # just in case these are null,
+declare -x PREVLEVEL=${PREVLEVEL:-"N"}
+if [ "$INIT_VERSION" ]
+then
+	# called by init
+	# use first argument only if RUNLEVEL is unset or null
+	declare -x RUNLEVEL=${RUNLEVEL:-${1:-2}}
+	[ "$#" -gt "0" -a "$1" != "$RUNLEVEL" ] \
+	&& Warn "Ignoring command line argument ( $1 ),
+	which contradicts environment variable \`RUNLEVEL' = $RUNLEVEL"
+else
+	# Use first argument only if it is set and not null
+	declare -x RUNLEVEL=${1:-${RUNLEVEL:-2}}
+fi
+# do not set any other variables readonly because of sourcing
+
+echo -n "rc: $PREVLEVEL -> $RUNLEVEL; "
+
+# lock the configuration (but only when not booting)
+if [ "$PREVLEVEL" != "N" ]
+then
+	echo -n "Locking "
+	while ! ProcId="`_LockFile $_LckFilNam`"
+	do
+		echo "timeout waiting for process $ProcId to unlock runlevel.conf"
+		echo "I will wait 20 seconds for you to login to fix it"
+		$_SULOGIN -t 40 -p
+	done
+fi
+
+if [ ! -s "$_RcCache" -o "$_RcCache" -ot "$_RcCfg" ] ; then
+	Warn "$LINENO: The file: $_RcCache is out of date, making a new cache"
+	MakeCache || {
+		Warn "$LINENO: cannot execute $_RcConfig"
+		_BadRcConfig="t"
+	}
+fi
+
+  # This script is vital so we better keep an old copy of the configuration
+  # file as fallsave-configuration.
+  # If the config file does not have a start command for a run level, it tries
+  # the next file.
+
+_Mode="0"
+while :
+do
+	let _Mode+="1"
+	if [ "$_Mode" -eq "2" ] ; then
+		[ -z "$_BadRcConfig" ] || continue
+		Warn "$LINENO: bad rc cache file; creating a new cache"
+		MakeCache || continue
+	elif [ "$_Mode" -gt "2" ] ; then
+		Warn "$LINENO: both cache and config files are bad.
+	You're in serious trouble now.  Please fix it:"
+		$_SULOGIN -p
+		_Mode="0"
+		continue
+	fi
+	if [ -s "$_RcCache" ]
+	then
+		_START_LIST=("")
+		_STOP_LIST=("")
+		# even empty lists have a new line
+		if . "$_RcCache" \
+		&& [ "${#_START_LIST[$RUNLEVEL]}" -gt "0" \
+		-a "${#_STOP_LIST[$RUNLEVEL]}" -gt "0" ]
+		then
+			break
+		else
+			Warn "$LINENO:  $_RcCache is bad"
+		fi
+	else
+		Warn "$LINENO: rc cache file ${_RcCache} is missing."
+	fi
+done
+rm -f $_TmpList
+
+# unset functions so source scripts won't execute by accident
+unset -f _LockFile _RcHelp
+
+if [ "$PREVLEVEL" = "N" -o "$PREVLEVEL" = "S" -o "$_NoOpt" ] 
+then
+	# no optimize
+	_ExecCmd "_STOP_LIST[$RUNLEVEL]" stop
+	_ExecCmd "_START_LIST[$RUNLEVEL]" start
+else
+	# optimize
+	_Optimal "_STOP_LIST[$RUNLEVEL]" "_OFF_STATUS" stop
+	_Optimal "_START_LIST[$RUNLEVEL]" "_ON_STATUS" start
+fi
+

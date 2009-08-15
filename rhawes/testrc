@@ -1,0 +1,37 @@
+#!/bin/bash
+# testrc -- test rc script
+# Usage: testrc lock_time previous_level rc_option [ rc_option . . . ]
+# By Richard L. Hawes, rhawes@dma.org
+
+#set -x
+
+exec 3>&2
+trap "" INT 
+
+bash -n rc || exit $?
+
+if [ "$#" -lt 3 ] ; then
+	echo "Usage: testrc lock_time previous_level [ -x ] run_level" >&2
+	exit 1
+fi
+
+[ "$1" -ne "0" ] && ./lck_rc_cfg $1  &
+shift
+
+prevlevel=$1
+shift
+
+if [ "-X" = "$1" ] ; then
+	shift
+	(
+		trap ":" INT 
+		time { env - PREVLEVEL=$prevlevel ./rc -D -X "$@" ; echo "
+		ret: $?" ; }
+	)  2>err | tee out
+else
+	(
+		trap ":" INT 
+		time { env - PREVLEVEL=$prevlevel ./rc -D "$@" ; echo "
+		ret: $?" ; }
+	)  2>&1 | tee out
+fi

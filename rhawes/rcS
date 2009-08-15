@@ -1,0 +1,192 @@
+#! /bin/bash
+# rcS -- Help to boot the system into single user mode
+# $Id: rcS,v 0.16 1999/11/20 14:14:20 hr Exp $
+#   Copyright (c) 1999  Richard Hawes <rhawes@dma.org>
+#			Martin Schulze <joey@debian.org>
+#                       Winfried Trümper <winni@xpilot.org>
+#                       Miquel van Smoorenburg <miquels@cistron.nl>
+
+# Experimental: To tell the scripts they are not called manually.
+export RC_VERSION="000.007"
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+#  Ideas taken from rcS as provided by the sysvinit package and from
+#  the file-rc /etc/init.d/rc program
+
+set -h
+declare -x PATH="/sbin:/bin:/usr/sbin:/usr/bin" \
+RUNLEVEL=S \
+PREVLEVEL=N
+umask 022
+
+_WarnPause="2"
+
+# FUNCTIONS
+function _Get_Cmd() {
+	# read the file...
+	local sort_no  off_levels  on_levels  cmd  options
+	while read  sort_no  off_levels  on_levels  cmd  options
+	do
+	    case "$sort_no" in
+		"#*" | "") continue ;;
+	    esac
+	    [ ! -f "$cmd" ] && continue
+	    eval "case $RUNLEVEL in ${on_levels//,/ | } ) echo $cmd ;; esac"
+	done
+}
+
+# Experimental: may be called by sourced scripts
+#	if RC_VERSION is null, source rc in source mode
+function Warn() { # Error Handler
+	echo "$0:" "$@"  >&2
+	echo -ne "\a"
+	sleep $_WarnPause
+}
+
+# debug mode
+if [ -z "$INIT_VERSION" -a "$1" = "-D" ]
+then
+	shift
+	if [ "$1" = "-X" ]
+	then
+		# trace
+		set -eux
+		shift
+	else
+		set -eu
+	fi
+	_Debug="echo"
+	# to time script, don't wait after error message
+	_WarnPause="0"
+
+	echo "debug note: will look for configuration files in the current directory"
+	_Etc="."
+else
+	_Etc="/etc"
+fi
+
+_RcCache="$_Etc/runlevel.cache"
+
+declare -a _RunCfg=("$_Etc/runlevel.conf" "$_Etc/runlevel.fallback")
+
+
+#
+#       See if system needs to be setup.
+#
+if [ -x /sbin/unconfigured.sh ]
+then
+  $_Debug /sbin/unconfigured.sh
+fi
+
+#
+#       Source defaults.
+#
+. /etc/default/rcS
+export VERBOSE
+
+#
+#       Trap CTRL-C &c only in this shell so we can interrupt
+#       subprocesses.
+#
+trap ":" INT QUIT TSTP
+
+# read in startup list from cache if possible
+_Ind="0"
+_Mode="1"
+
+function _Get_Start_Up () {
+	declare _cmd
+	. "$1";
+	for _cmd in $_START_UP
+	do
+		echo ${_CMD_LIST[$_cmd]}
+	done
+}
+function _Get_File () { File="${_RcCache}"; }
+_MaxInd="0"
+
+while :
+do
+	_Get_File
+	if [ -s "$File" ]
+	then
+		_START_UP=""
+		if _START_UP="$(_Get_Start_Up $File)" && [ ${#_START_UP} -gt 0 ]
+		then
+			echo "Using ${File}."
+			break
+		else
+			Warn "$LINENO: No start up commands in $File."
+		fi
+		declare -p _CMD_LIST _ON_STATUS _OFF_STATUS _START_UP _START_LIST _STOP_LIST
+	else
+		Warn "$LINENO: file ${File} is missing."
+	fi
+	let _Ind+="1"
+	if [ "$_Ind" -gt "$_MaxInd" ] ; then
+		if [ "$_Mode" ] ; then
+			_Ind="0"
+			_Mode=""
+			_MaxInd="1"
+			function _Fix_Cmd () { :; }
+			function _Get_File () { File="${_RunCfg[$_Ind]}";  }
+			function _Get_Start_Up () { _Get_Cmd < $1; }
+			continue
+		else
+			Warn "$LINENO: startup is failing"
+			break
+		fi
+	fi
+done
+
+# unset functions so source scripts won't execute by accident
+unset -f _Get_Cmd _Get_File _Get_Start_Up
+
+# Execute the commands
+set start
+for _Cmd in $_START_UP
+do
+
+	[ -x "$_Cmd" ] || continue
+
+	case "$_Cmd" in
+		*.sh)
+			# Source shell script for speed.
+			(
+				trap - INT QUIT TSTP
+				$_Debug . $_Cmd
+			)
+			;;
+		*)
+			# No sh extension, so fork subprocess.
+			$_Debug $_Cmd start
+			;;
+	esac
+done
+
+#
+#       For compatibility, run the files in /etc/rc.boot too.
+#
+[ -d /etc/rc.boot ] && $_Debug run-parts /etc/rc.boot
+
+#
+#       Finish setup if needed.
+#
+if [ -x /sbin/setup.sh ]
+then
+  $_Debug /sbin/setup.sh
+fi
+

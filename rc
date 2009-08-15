@@ -247,7 +247,9 @@ do
     then
 	case "$CMD" in
 	*.sh)	CMDLIST="$CMDLIST; (set -- $stop; . $CMD)" ;;
-	*)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $stop" ;;
+	*)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $stop" 
+		test $debug = 1 && echo "Stop $CMD" 
+		;;
 	esac
     fi
 done
@@ -267,7 +269,9 @@ do
 
     case "$CMD" in
     *.sh)	CMDLIST="$CMDLIST; (set -- $start; . $CMD)" ;;
-    *)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $start" ;;
+    *)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $start" 
+    	test $debug = 1 && echo "Start $CMD"
+    	;;
     esac
 done
 

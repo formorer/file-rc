@@ -7,6 +7,7 @@ Build-Depends: debhelper (>= 5)
 
 Package: file-rc
 Architecture: all
+Depends: ${misc:Depends}
 Conflicts: ash (<< 0.3.5-1)
 Replaces: sysv-rc, sysvinit (<< 2.85-3)
 Description: Alternative boot mechanism using a single configuration file

@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 # 
 # This is the script "update-rc.d" used manipulating the runlevel setup.
 # This version handles a configuration file for the SysV-init instead 

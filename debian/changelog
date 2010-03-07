@@ -4,6 +4,8 @@ file-rc (0.8.12) unstable; urgency=low
   * Add better debugging support
   * Bump standards version (no further changes)
   * Remove linda overrides
+  * Implement sorting based on sortnumbers in runlevel.conf 
+    (Closes: #327085). Thanks to Tim Phipps for the sort idea. 
   * Tell invoke-rc.d the difference between runlevels, to prevent warnings
     during boot (Closes: #505552). Thanks to Ken Bloom for the patch
   * Only create symlinks im post-rm if programs are missing (Closes: #543780)

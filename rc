@@ -225,9 +225,9 @@ do
     # init-script after "start" or "stop".
 
     [ "$ON_LEVELS" != "-" ] && element "$runlevel" in "$ON_LEVELS" \
-	&& STARTLIST=`pushlevel $CMD $ON_LEVELS $STARTLIST`
+	&& STARTLIST=`pushlevel $SORT_NO:$CMD $ON_LEVELS $STARTLIST`
 
-    element "$runlevel" in "$OFF_LEVELS" && STOPLIST="$STOPLIST$CMD "
+    element "$runlevel" in "$OFF_LEVELS" && STOPLIST="$STOPLIST$SORT_NO:$CMD "
 
 done < $CFGFILE
 
@@ -239,38 +239,60 @@ fi
 
 
 # First, run the KILL scripts.
-for CMD in $STOPLIST
+for x in 0 1 2 3 4 5 6 7 8 9
 do
-    if [ "$prevlevel" != "N" ]
-    then
-	case "$CMD" in
-	*.sh)	CMDLIST="$CMDLIST; (set -- $stop; . $CMD)" ;;
-	*)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $stop" 
-		test $debug = 1 && echo "Stop $CMD" 
-		;;
-	esac
-    fi
+  for y in 0 1 2 3 4 5 6 7 8 9
+  do
+    for script in $STOPLIST
+    do
+      STOP_NUM=${script%%:*}
+      if [ $STOP_NUM -eq $x$y ]
+      then
+        CMD=${script#*:}
+        echo "prev: $prevlevel"
+        if [ "$prevlevel" != "N" ]
+        then
+          case "$CMD" in
+            *.sh)	CMDLIST="$CMDLIST; (set -- $stop; . $CMD)" ;;
+            *)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $stop" 
+                test $debug = 1 && echo "Stop $CMD" 
+            ;;
+          esac
+        fi
+      fi
+    done
+  done
 done
 
 # Then look at the start scripts
-for comb in $STARTLIST
+for x in 0 1 2 3 4 5 6 7 8 9
 do
-    CMD=${comb%:*}
-    if [ "$prevlevel" != "N" ]
-    then
-	level=${comb#*:}
-	if element "$prevlevel" in "$level" && ! is_elem $CMD $STOPLIST
-	then
-	    continue
-	fi
-    fi
-
-    case "$CMD" in
-    *.sh)	CMDLIST="$CMDLIST; (set -- $start; . $CMD)" ;;
-    *)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $start" 
-    	test $debug = 1 && echo "Start $CMD"
-    	;;
-    esac
+  for y in 0 1 2 3 4 5 6 7 8 9
+  do
+    for script in $STARTLIST
+    do
+      START_NUM=${script%%:*}
+      if [ $START_NUM -eq $x$y ]
+      then
+        comb=${script#*:}
+        CMD=${comb%:*}
+        if [ "$prevlevel" != "N" ]
+        then
+          level=${comb#*:}
+          if element "$prevlevel" in "$level" && ! is_elem $CMD $STOPLIST
+          then
+            continue
+          fi
+        fi
+        case "$CMD" in
+          *.sh) CMDLIST="$CMDLIST; (set -- $start; . $CMD)" ;;
+          *)  [ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD $start"
+          test $debug = 1 && echo "Start $CMD"
+          ;;
+        esac
+      fi
+    done
+  done
 done
 
 # Execute the commands collected above

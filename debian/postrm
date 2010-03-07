@@ -23,8 +23,12 @@ case "$1" in
     ;;
 
     remove)
-	ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/update-rc.d
-	ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/invoke-rc.d  
+	if [ ! -e /usr/sbin/update-rc.d ] ; then
+		ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/update-rc.d
+	fi
+	if [ ! -e /usr/sbin/invoke-rc.d ] ; then
+		ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/invoke-rc.d  
+	fi
     ;;
 
     purge)

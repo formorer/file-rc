@@ -4,6 +4,8 @@ file-rc (0.8.12) unstable; urgency=low
   * Add better debugging support
   * Bump standards version (no further changes)
   * Remove linda overrides
+  * Only create symlinks im post-rm if programs are missing (Closes: #543780)
+    Thanks Petter Reinholdtsen for the patch
 
  -- Alexander Wirt <formorer@debian.org>  Sun, 07 Mar 2010 12:29:04 +0100
 

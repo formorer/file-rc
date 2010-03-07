@@ -292,6 +292,15 @@ if test ! $? ; then
     RL=
 fi
 
+## Running ${RUNLEVEL} to get current runlevel do not work in the boot
+## runlevel (scripts in /etc/rcS.d/), as /var/run/utmp contain
+## runlevel 0 or 6 (written at shutdown) at that point.
+if test x${RL} = x0 || test x${RL} = x6 ; then
+    if ps -fp 1 | grep -q 'init boot' ; then
+       RL=S
+    fi
+fi
+
 ## Handles shutdown sequences VERY safely
 ## i.e.: forget about policy, and do all we can to run the script.
 ## BTW, why the heck are we being run in a shutdown runlevel?!

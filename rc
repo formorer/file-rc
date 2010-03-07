@@ -7,8 +7,6 @@
 # Misc improvements and code rewrite by Martin Schulze <joey@debian.org>
 # Misc improvements by Roland Rosenfeld <roland@spinnaker.de>
 #
-# $Id: rc,v 1.24 2008-05-01 10:16:33 roland Exp $
-#
 # Unlike traditional implementations it avoids the messy scheme with
 # expressing the setup through links but reads a central config file
 # instead. From a technical point of view both methods are almost

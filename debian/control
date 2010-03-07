@@ -1,7 +1,8 @@
 Source: file-rc
 Section: admin
 Priority: extra
-Maintainer: Alexander Wirt <formorer@debian.org>
+Maintainer: file-rc maintainers <file-rc-users@lists.alioth.debian.org>
+Uploaders: Alexander Wirt <formorer@debian.org>, Michael Prokop <mika@debian.org>
 Standards-Version: 3.8.4
 Build-Depends: debhelper (>= 5)
 

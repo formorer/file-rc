@@ -2,6 +2,7 @@ file-rc (0.8.12) unstable; urgency=low
 
   * New maintainer (Closes: #539609)
   * Add better debugging support
+  * Bump standards version (no further changes)
 
  -- Alexander Wirt <formorer@debian.org>  Sun, 07 Mar 2010 12:29:04 +0100
 

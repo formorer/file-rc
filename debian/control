@@ -2,7 +2,7 @@ Source: file-rc
 Section: admin
 Priority: extra
 Maintainer: Alexander Wirt <formorer@debian.org>
-Standards-Version: 3.7.3
+Standards-Version: 3.8.4
 Build-Depends: debhelper (>= 5)
 
 Package: file-rc

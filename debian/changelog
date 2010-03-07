@@ -1,0 +1,388 @@
+file-rc (0.8.11) unstable; urgency=low
+
+  * Fix bash-completion when invoked via sudo. Thanks to Javier Kohen
+    <jkohen@users.sourceforge.net> for providing a patch (Closes: #310456).
+  * Replace "kill -0" by "kill -s 0", because the other seems to be a
+    bashism. Thanks to Mert Dirik <mertdirik@gmail.com> for providing a
+    patch (Closes: #464650).
+  * Upgrade to Standards-Version 3.7.3 (no changes).
+  * Convert copyright from iso-8859-1 to utf-8.
+  * Remove some outdated warnings from overrride.lintian.
+
+ -- Roland Rosenfeld <roland@debian.org>  Thu, 01 May 2008 12:25:29 +0200
+
+file-rc (0.8.10) unstable; urgency=high
+
+  * The quick idiot release :-(
+  * Fix the IFS bug now in /etc/init.d/rcS, too.
+
+ -- Roland Rosenfeld <roland@debian.org>  Mon,  3 Jul 2006 18:01:46 +0200
+
+file-rc (0.8.9) unstable; urgency=high
+
+  * Fix the IFS bug introduced with the previous version, which implied
+    that /etc/init.d/rc did nothing any more (Closes: #376366).
+
+ -- Roland Rosenfeld <roland@debian.org>  Mon,  3 Jul 2006 17:50:05 +0200
+
+file-rc (0.8.8) unstable; urgency=low
+
+  * Fix POSIX sh incompatibilities. Thanks to Jörg Sommer for reporting
+    this and providing a patch (Closes: #292632).
+  * Build-Depends instead of Build-Depends-Indep on debhelper.
+  * Upgrade to debhelper v5.
+  * Upgrade to Standards-Version 3.7.2 (no changes).
+  * Fix non ascii char in runlevel.conf.5 man page.
+  * Remove non-posix-code from postinst.
+  * Remove closes=n entries from old changelog header lines to make
+    lintian happy.
+  * Update FSF address in debian/copyright.
+
+ -- Roland Rosenfeld <roland@debian.org>  Fri, 30 Jun 2006 22:31:49 +0200
+
+file-rc (0.8.7) unstable; urgency=low
+
+  * Export runlevel and prevlevel in /etc/init.d/rc (Closes: #251025).
+
+ -- Roland Rosenfeld <roland@debian.org>  Sat, 14 Aug 2004 18:47:09 +0200
+
+file-rc (0.8.6) unstable; urgency=medium
+
+  * Replaces sysvinit (<< 2.85-3) instead of conflicting with it. This
+    makes the upgrade from woody possible
+    (Closes: #192702, #200858, #202984, #256524, #250358).
+
+ -- Roland Rosenfeld <roland@debian.org>  Sat,  7 Aug 2004 12:06:23 +0200
+
+file-rc (0.8.5) unstable; urgency=low
+
+  * Expand digit sequence numbers with leading "0" in update-rc.d(8).
+  * Add support for single digit sequence numbers to rcfile2link.sh, to
+    avoid loosing these entries (Closes: #244944).
+
+ -- Roland Rosenfeld <roland@debian.org>  Sun, 25 Apr 2004 11:18:07 +0200
+
+file-rc (0.8.4) unstable; urgency=high
+
+  * Fix rclink2file.sh, which did no longer convert links to files since
+    last release (Closes: #244920).
+
+ -- Roland Rosenfeld <roland@debian.org>  Tue, 20 Apr 2004 19:58:54 +0200
+
+file-rc (0.8.3) unstable; urgency=low
+
+  * Fix pointer to policy chapter in /etc/init.d/README.
+  * Add README.invoke-rc.d and README.policy-rc.d from sysv-rc package.
+  * Update man pages invoke-rc.d.8 and update-rc.d.8.
+  * Update README and debian/copyright.
+  * Add support for init scripts in /usr/local/etc/init.d to
+    rclink2file.sh (Closes: #199363). 
+
+ -- Roland Rosenfeld <roland@debian.org>  Sat, 27 Mar 2004 12:10:24 +0100
+
+file-rc (0.8.2) unstable; urgency=low
+
+  * Add bash completion for invoke-rc.d.  Thanks to Joerg Sommer
+    <joerg@alea.gnuu.de> (Closes: #207396).
+  * Allow 00 as a valid sequence number in /etc/init.d/rc (was 01-99
+    before). (Closes: #215074).
+  * Upgrade to Standards-Version 3.6.1 (no changes).
+  * Avoid linda warning multiple-update-rc.d in preinst and postrm,
+    because these scripts do some renaming magic with the update-rc.d
+    script but don't call update-rc.d multiple times.
+
+ -- Roland Rosenfeld <roland@debian.org>  Sun, 16 Nov 2003 15:59:58 +0100
+
+file-rc (0.8.1) unstable; urgency=low
+
+  * s/comma-seperated/comma-separated/ in runlevel.conf.5 (Closes: #188093).
+  * Upgrade to sysvinit >= 2.85-3 (Closes: #190272).
+    - Replaces: sysv-rc
+    - Conflicts: sysvinit << 2.85-3
+    - Add man pages update-rc.d(8) and involke-rc.d(8) based on the files
+      from sysv-rc package (and mention it in the copyright). 
+    - Merge most of the contents of README.runlevels (from sysv-rc) into
+      runlevel.conf(5) man page.
+    - Install rc, rcS, update-rc.d, install-rc.d into the correct
+      directories instead of /usr/share/file-rc.
+    - Stop adding diversions in postist.
+    - Stop deleting diversions in postrm.
+    - Start deleting diversions in postinst on upgrade from
+      file-rc (<<0.8.0).
+    - Link /usr/share/sysvinit/update-rc.d to /usr/sbin/update-rc.d and
+      /usr/sbin/invoke-rc.d in postrm on remove to avoid problems with
+      dpkg not finding these programs.
+  * Upgrade to Standards-Version 3.5.9 (no changes).
+  * Add overrides for lintian and linda.
+
+ -- Roland Rosenfeld <roland@debian.org>  Sat, 26 Apr 2003 18:47:08 +0200
+
+file-rc (0.7.0) unstable; urgency=low
+
+  * Allow sequence number 00 in update-rc.d and invoke-rc.d
+    (Closes: #179774).
+  * Upgrade to Standards-Version 3.5.8 (no changes).
+  * Upgrade to new debhelper (>= 4.0.0, debian/compat V4).
+  * Move all files from /usr/lib/file-rc to /usr/share/file-rc.
+  * Update debian/(pre|post)(rm|inst) files according to dh_make templates.
+
+ -- Roland Rosenfeld <roland@debian.org>  Sat,  8 Feb 2003 17:35:01 +0100
+
+file-rc (0.6.3) unstable; urgency=low
+
+  * -n is opt_simulate, not opt_force (Closes: #131051).
+
+ -- Roland Rosenfeld <roland@debian.org>  Mon, 28 Jan 2002 08:36:43 +0100
+
+file-rc (0.6.2) unstable; urgency=low
+
+  * Don't install runlevel.tmp as runlevel.conf, if "-n" option is given
+    to follow the update-rc.d(8) man page (Closes: #124397).
+  * Correct spelling of Description (Closes: #124615).
+  * Change Build-Depends to Build-Depends-Indep because lintian requests
+    this.
+  * Remove obsolete dh_suidregister from debian/rules.
+
+ -- Roland Rosenfeld <roland@debian.org>  Sun, 23 Dec 2001 13:20:38 +0100
+
+file-rc (0.6.1) unstable; urgency=low
+
+  * Corrected man page runlevel.conf(5): the kill levels are executed in
+    alphabetical order, not in reverse order (Closes: #110473).
+  * s/trough/through/ in package description (Closes: #111021).
+
+ -- Roland Rosenfeld <roland@debian.org>  Fri,  5 Oct 2001 15:19:18 +0200
+
+file-rc (0.6.0) unstable; urgency=low
+
+  * Add directory for Richard Hawes' changes.  I still don't like his
+    changes, so I don't merge it into the binary package, but conserve
+    them in the source package, for later use (Closes: #31018).
+  * Add support for invoke-rc.d mainly provided by Henrique de Moraes
+    Holschuh <hmh@debian.org> and Depend on sysvinit (>= 2.80-1) which
+    comes with invoke-rc.d (Closes: #106971).
+  * Remove function element() from update-rc.d (it is not used).
+  * Stop converting runlevels "single" and "S" to "1" in rc.
+  * Add diversion of /usr/sbin/invoke-rc.d to postinst/postrm.
+  * Upgrade to Standards-Version 3.5.5 (no changes).
+  * Replace dh_testversion by versioned Build-Depends.
+
+ -- Roland Rosenfeld <roland@debian.org>  Sun, 29 Jul 2001 13:15:09 +0200
+
+file-rc (0.5.7) unstable; urgency=low
+
+  * Replace bashism "let i+=1" by "i=$(($i + 1))" (Closes: #72431).
+  * Add more information about this package to README.debian.
+
+ -- Roland Rosenfeld <roland@debian.org>  Sat, 30 Sep 2000 20:36:26 +0200
+
+file-rc (0.5.6) unstable; urgency=low
+
+  * Upgrade to Standards-Version 3.2.0 (no changes).
+  * Upgrade to new debhepler:
+    - Change to DH_COMPAT=2.
+    - Add some dh_* calls to debian/rules.
+  * Move lockfile from /etc to /var/lock (Closes: #66585).
+
+ -- Roland Rosenfeld <roland@debian.org>  Mon, 11 Sep 2000 14:48:36 +0200
+
+file-rc (0.5.5) frozen unstable; urgency=low
+
+  * This is only a bugfix release (very small changes), which can go into
+    frozen.
+  * Avoid "can't shift that many" message when rclink2file is run with ash
+  * move "# THE LAST LINE IS NEVER READ" to the end of runlevel.conf
+    (Closes: # 57787).
+
+ -- Roland Rosenfeld <roland@debian.org>  Fri, 11 Feb 2000 12:24:45 +0100
+
+file-rc (0.5.4) unstable; urgency=low
+
+  * Get rid of "echo -e" in rc, rclink2file.sh and update-rc.d, because
+    this seem to be incompatible to POSIX.
+  * Get rid of "echo -n" in update-rc.d because this is not fully
+    portable.
+  * Get rid of all "echo -n" in rc except one (which outputs dots to show,
+    that the system is waiting for a lock, it shouldn't be a big problem
+    if this fails, it only looks ugly).
+  * Removed unique() from update-rc.d, it was never used.
+  * Upgrade to Standards version 3.1.0: Added Build-Depends
+
+ -- Roland Rosenfeld <roland@debian.org>  Sun,  9 Jan 2000 00:19:49 +0100
+
+file-rc (0.5.3) unstable; urgency=medium
+
+  * Add pointer to runlevel.conf(5) to new /etc/runlevel.conf created by
+    rclink2file.sh.
+  * update-rc.d: use "-" if start- or stop-list is empty (Closes: #47910)
+  * update-rc.d: remove now really removes instead of mentioning, that
+    this command is already in runlevel.conf.
+
+ -- Roland Rosenfeld <roland@debian.org>  Wed, 20 Oct 1999 23:44:38 +0200
+
+file-rc (0.5.2) unstable; urgency=low
+
+  * rcfile2link.sh: Correct detection of comments (created links for
+    commented lines before).
+  * Added man page runlevel.conf(5).
+
+ -- Roland Rosenfeld <roland@debian.org>  Mon,  4 Oct 1999 09:55:23 +0200
+
+file-rc (0.5.1) unstable; urgency=low
+
+  * Use runlevel.fallback in rcS, if runlevel.conf isn't available.
+  * Start a /sbin/sulogin in rc, if runlevel.conf and runlevel.fallback
+    aren't available. (Thanks to Richard Hawes <hawesr@gemair.com> for
+    mentioning this).
+  * Update to standards version 3.0.1:
+    - /usr/doc -> /usr/share/doc
+    - Add #DEBHELPER# to [post|pre][inst|rm] scripts.
+  * Added a debian/TODO.
+  * Wait for 120 seconds in rc if lockfile exists.  After this die on a
+    normal runlevel change or kill the locking process, if rebooting or
+    halting (this avoids strange states in these special situation).
+  * Lock runlevel.conf, if prevlevel!=N and new runlevel!=1,6.
+
+ -- Roland Rosenfeld <roland@debian.org>  Thu, 30 Sep 1999 19:03:09 +0200
+
+file-rc (0.5.0) unstable; urgency=low
+
+  * Changed debian/rules to debhelper.
+  * Changed standards-version to 2.5.1 (no changes).
+  * Conflict with ash (<< 0.3.5-1), so update-rc.d and rclink2file.sh can
+    use /bin/sh (older versions of ash had a bug in ${parameter%%word},
+    new ash and bash have no problem with this).
+
+ -- Roland Rosenfeld <roland@debian.org>  Sat, 14 Aug 1999 17:57:25 +0200
+
+file-rc (0.4.9) unstable; urgency=low
+
+  * update-rd.d: Don't change runlevel.conf, if there is already a line
+    with the actual command in it. This didn't work under all
+    circumstances before (Closes: #31729).
+  * Remove bashisms from debian/rules.
+
+ -- Roland Rosenfeld <roland@debian.org>  Mon,  9 Aug 1999 18:22:44 +0200
+
+file-rc (0.4.8) unstable; urgency=low
+
+  * New maintainer.
+  * Upgraded standards-version to 2.5.0 (no changes).
+  * Changed lock file consistently to /etc/runlevel.lock (should be on
+    root partition).
+  * Added Copyright to debian/copyright.
+  * Fixed r2d2 URL in debian/copyright (Closes: #38675).
+  * Run update-rc.d with /bin/bash, because there are still some bashisms
+    in it (Closes: #37510).
+  * Removed bashisms in all shell scripts. So at least rc and rcS can run
+    with sh linked to ash. update-rc.d still needs bash because of #37510.
+    (Closes: #35570, #36851, #36889 ).
+
+ -- Roland Rosenfeld <roland@debian.org>  Fri,  2 Jul 1999 11:39:06 +0200
+
+file-rc (0.4.7) frozen unstable; urgency=low
+
+  * Fixed problems wrt. changing of runlevels, partially applied patch
+    from Roland Rosenfeld.  (closes: Bug#30669)
+
+ -- Martin Schulze <joey@finlandia.infodrom.north.de>  Wed, 30 Dec 1998 12:39:23 +0100
+
+file-rc (0.4.6) unstable; urgency=low
+
+  * Execution of .sh scripts now takes place in a separate environment of
+    the current shell using the "(. *.sh)" construct.  This allows .sh
+    scripts to use exit statements without halting the complete boot
+    procedure.  (closes: Bug#28204)
+
+ -- Martin Schulze <joey@finlandia.infodrom.north.de>  Thu, 22 Oct 1998 12:31:46 +0200
+
+file-rc (0.4.5) unstable; urgency=low
+
+  * *Temporarily* disabled sourceing of *.sh scripts.  This needs to be
+    discussed on -policy.  It's disabled to avoid showstoppers for the
+    slink release.
+  * Corrected comment-detection code.  Thanks to Marc Haber
+    <Marc.Haber@gmx.de> (closes: Bug#28066)
+
+ -- Martin Schulze <joey@finlandia.infodrom.north.de>  Tue, 20 Oct 1998 20:13:11 +0200
+
+file-rc (0.4.4) unstable; urgency=low
+
+  * Don't check for being executable when referring to a *.sh script 
+
+ -- Martin Schulze <joey@finlandia.infodrom.north.de>  Tue, 30 Jun 1998 01:08:44 +0200
+
+file-rc (0.4.3) unstable frozen; urgency=high
+
+  * Complete rewrite of the commandline parser for update-rc.d.  It now
+    handles different runlevels correctly and works similar to the program
+    as provided by sysvinit.
+  * Included support for runlevel S (closes: Bug#19507)
+  * Wrote and included rcS
+  * Moved /etc/init.d/reboot and /etc/init.d/halt from sequence 05 to 99
+  * Use dpkg-divert for /etc/init.d/rcS
+  * Complete rewrite of debian/rules as it's now clear that I'm not only
+    an interim maintainer. (closes: Bug#19310)
+  * Applied patch from Wakko Warner <wakko@ani.animx.ml.org> to support
+    .sh files. (closes: Bug#17882)
+  * Used new source ftp address in copyright
+  * Rewrote rclink2file.sh to support different start sequences
+  * Hacked support for runlevel S into rcfile2link.sh
+  * Removed /tmp files in favour of /etc tempfiles
+  * Added support for runlevel S in rclink2file.sh
+  * Added support for .sh files not marked executable
+  * Modified /etc/init.d/rc to call all kill scripts first and then run
+    the start scripts, when they're not called in the previous level -
+    just like sysvinit.  (closes: Bug#20963)
+  * New description
+  * Added module to correct missing runlevel S support and wrong handling
+    for reboot and halt to postinst
+  * New Standards-Version
+  * Heavy tested the code on a plain hamm machine as well as on a manual
+    crippled machine.  Yes, it works.  Great.
+
+ -- Martin Schulze <joey@finlandia.infodrom.north.de>  Sun, 17 May 1998 20:22:43 +0200
+
+file-rc (0.4.2) unstable frozen; urgency=low
+
+  * New maintainer
+  * New standards version
+  * Modified debian/rules
+  * Added copyright from upstream author
+  * Corrected copyright notice
+  * Modified postinst according to Juan Cespedes' suggestion (Bug#14003)
+  * Fixed small typo in update-rc.d which prevents the help text from
+    being displayed
+  * Corrected update-rc.d so entries get removed now (Bug#12226)
+  * Better options handling included
+  * Implemented -f (force) switch
+  * Changed on/off to start/stop in help text
+  * Corrected bahaviour of update-rc.d when start/stop codes are
+    specified.  These resulted in [= integer expression expected in the
+    past.  (Bug#10075)
+  * Modified update-rc.d so it now understands start (and stop) lists
+    ending with a dot.  (Bug#12661)
+
+ -- Martin Schulze <joey@finlandia.infodrom.north.de>  Wed, 14 Jan 1998 12:42:13 +0100
+
+file-rc (0.4.1) unstable frozen; urgency=medium
+
+  * Installation now corrects previous defects in /etc/runlevel.conf and
+    /etc/runlevel.fallback in preinst script.
+
+ -- Tom Lees <tom@lpsg.demon.co.uk>  Sat, 24 May 1997 09:18:43 +0100
+
+file-rc (0.4) unstable frozen; urgency=high
+
+  * Fixed major problem with installation with multiple packages (#10051).
+  * Fixed an even worse bug where it would totally fail to work (#10052).
+  * No longer allows /etc/init.d/rc to be automatically overwritten by
+    upgrading sysvinit.
+
+ -- Tom Lees <tom@lpsg.demon.co.uk>  Fri, 23 May 1997 20:25:02 +0100
+
+file-rc (0.3) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Tom Lees <tom@lpsg.demon.co.uk>  Tue, 11 Feb 1997 18:19:10 +0000

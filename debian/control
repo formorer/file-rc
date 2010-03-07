@@ -1,0 +1,23 @@
+Source: file-rc
+Section: admin
+Priority: extra
+Maintainer: Alexander Wirt <formorer@debian.org>
+Standards-Version: 3.7.3
+Build-Depends: debhelper (>= 5)
+
+Package: file-rc
+Architecture: all
+Conflicts: ash (<< 0.3.5-1)
+Replaces: sysv-rc, sysvinit (<< 2.85-3)
+Description: Alternative boot mechanism using a single configuration file
+ This package provides an alternative mechanism to boot the system, to
+ shut it down and to change runlevels.  The /etc/rc?.d/* links will be
+ converted into one single configuration file /etc/runlevel.conf
+ instead, which is easier to administrate than symlinks, and is also
+ more flexible.
+ .
+ The package will automatically convert your existing symlinks into
+ the file method on installation, and convert the file back into
+ symlinks on removal. Both mechanisms are compatible through
+ /etc/init.d/rc, /etc/init.d/rcS, /usr/sbin/update-rc.d, and
+ /usr/sbin/invoke-rc.d scripts.

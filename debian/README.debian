@@ -1,0 +1,31 @@
+The Debian Package file-rc
+==========================
+
+This package provides an alternative mechanism to boot the system, to
+shut it down, or to change to a different runlevel.  The /etc/rc?.d/*
+links will be converted into one single configuration file
+/etc/runlevel.conf instead, which is easier to administrate than
+symlinks, and is also more flexible.
+
+The package will automatically convert your existing symlinks into the
+file method on installation, and convert the file back into symlinks
+on removal.  Both mechanisms are compatible trough /etc/init.d/rc,
+/etc/init.d/rcS, /usr/sbin/update-rc.d, and /usr/sbin/invoke-rc.d
+scripts.
+
+To get more information about the runlevel mechanism, please have a
+look into the runlevel.conf(5) man page.
+
+
+History
+=======
+
+This was packaged from the original new-rc posted on debian-devel and
+debian-admintool. Tom Lees <tom@lpsg.demon.co.uk> has modified it to
+work in a real system, and set up the postinst scripts, to automate
+conversion to the file system.  He has also written a script to
+convert back from the file system to symlinks.
+
+
+Roland Rosenfeld <roland@debian.org>
+$Id: README.debian,v 1.5 2003-04-26 16:24:32 roland Exp $

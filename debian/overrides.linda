@@ -1,0 +1,7 @@
+Tag: etc-conffile
+Data: (README|rc|rcS)
+
+Tag: bad-perms-for-initd
+Data: README
+
+Tag: multiple-update-rc.d

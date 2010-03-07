@@ -1,0 +1,7 @@
+file-rc: non-standard-file-permissions-for-etc-init.d-script etc/init.d/README 0644 != 0755
+file-rc: file-in-etc-not-marked-as-conffile /etc/init.d/rc
+file-rc: file-in-etc-not-marked-as-conffile /etc/init.d/rcS
+file-rc: file-in-etc-not-marked-as-conffile /etc/init.d/README
+file-rc: script-in-etc-init.d-not-registered-via-update-rc.d /etc/init.d/rc
+file-rc: script-in-etc-init.d-not-registered-via-update-rc.d /etc/init.d/rcS
+file-rc: script-in-etc-init.d-not-registered-via-update-rc.d /etc/init.d/README

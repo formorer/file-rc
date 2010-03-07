@@ -1,0 +1,82 @@
+#!/usr/bin/make -f
+#
+# (C) 1999-2003 Roland Rosenfeld <roland@debian.org>, based on
+# Sample debian/rules that uses debhelper. 
+# This file is public domain software, originally written by Joey Hess.
+#
+# This version is for packages that are architecture independent.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+installbin = install -o root -g root -m 755
+installdoc = install -o root -g root -m 644
+debroot = `pwd`/debian/file-rc
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	$(installbin) rc rcS $(debroot)/etc/init.d/
+	$(installdoc) rc.README $(debroot)/etc/init.d/README
+	$(installbin) update-rc.d invoke-rc.d $(debroot)/usr/sbin/
+	$(installbin) rclink2file.sh rcfile2link.sh \
+		$(debroot)/usr/share/file-rc/
+	$(installdoc) debian/overrides.lintian \
+		$(debroot)/usr/share/lintian/overrides/file-rc
+	$(installdoc) debian/overrides.linda \
+		$(debroot)/usr/share/linda/overrides/file-rc
+	$(installdoc) debian/bash_completion \
+		$(debroot)/etc/bash_completion.d/file-rc
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
+#	dh_installmenu
+#	dh_installdebconf
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+#	dh_undocumented
+	dh_installman
+	dh_link
+	dh_compress
+	dh_fixperms -X/etc/init.d/README
+	dh_installdeb
+#	Workaround to avoid rc, rcS and README from /etc/init.d being 
+#	conffiles:
+	grep -v /etc/init.d/ $(debroot)/DEBIAN/conffiles \
+		> $(debroot)/DEBIAN/conffiles.tmp
+	mv $(debroot)/DEBIAN/conffiles.tmp $(debroot)/DEBIAN/conffiles
+#	dh_perl
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: build install
+# We have nothing to do by default.
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

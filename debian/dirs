@@ -1,0 +1,7 @@
+etc/init.d
+etc/bash_completion.d
+usr/sbin
+usr/share/file-rc
+usr/share/doc/file-rc
+usr/share/lintian/overrides
+usr/share/linda/overrides

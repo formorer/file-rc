@@ -3,7 +3,7 @@ Section: admin
 Priority: extra
 Maintainer: file-rc maintainers <file-rc-users@lists.alioth.debian.org>
 Uploaders: Alexander Wirt <formorer@debian.org>, Michael Prokop <mika@debian.org>
-Standards-Version: 3.8.4
+Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 5)
 
 Package: file-rc

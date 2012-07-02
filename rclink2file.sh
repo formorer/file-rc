@@ -123,4 +123,4 @@ do
 
     done
 done) | sort -n
-echo "# THE LAST LINE IS NEVER READ!"
+echo "# THE LAST LINE IS NEVER READ"

@@ -23,28 +23,17 @@ set -e
 #     installation fails and the `postinst' is called with `abort-upgrade',
 #     `abort-remove' or `abort-deconfigure'.
 
+# Make sure insserv is in path
+PATH=/sbin:$PATH
+
 case "$1" in
     configure)
-	# Versions older than 0.4.3 didn't support runlevel S properly.
-	# The easiest way to fix this is to change everything back
-	# to the link structure and then back again to the runlevel file.
-	#
-	if [ "$2" != "" ] && dpkg --compare-versions $2 lt 0.4.3
+	if [ -x /sbin/insserv ] && [ ! -f /etc/runlevel.conf ]
 	then
-	    echo "Updating runlevel.conf to support new runlevel S."
-	    /usr/share/file-rc/rcfile2link.sh \
-		&& rm -f /etc/runlevel.conf /etc/runlevel.fallback
-	    if [ -f /etc/rc0.d/S05halt ] || [ -f /etc/rc6.d/S05reboot ]
-	    then
-		echo "Correcting handling of halt and reboot"
-		[ -f /etc/rc0.d/S05halt ] \
-		    && mv -f /etc/rc0.d/S05halt /etc/rc0.d/S90halt
-		[ -f /etc/rc6.d/S05reboot ] \
-		    && mv -f /etc/rc6.d/S05reboot /etc/rc6.d/S90reboot
-	    fi
-	fi
-
-	if [ -d /etc/rc0.d ] && [ ! -f /etc/runlevel.conf ]
+	    /usr/share/file-rc/insserv2file.sh > /etc/runlevel.conf
+	    cp /etc/runlevel.conf /etc/runlevel.fallback
+	    rm -rf /etc/rc[0-6S].d
+	elif [ -d /etc/rc0.d ] && [ ! -f /etc/runlevel.conf ]
 	then
 	    /usr/share/file-rc/rclink2file.sh > /etc/runlevel.conf
 	    cp /etc/runlevel.conf /etc/runlevel.fallback

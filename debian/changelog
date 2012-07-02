@@ -1,3 +1,35 @@
+file-rc (0.8.13) UNRELEASED; urgency=low
+
+  * Use insserv for runlevel defaults rather than the arguments
+    provided to update-rc.d.  The following changes have been made to
+    update-rc.d:
+    - Added new shell functions insserv_find, insserv_find_internal
+      to query insserv for dependency information.  These set the
+      variables previously used for setting the same information from
+      the command-line options, so most of the internal behaviour is
+      unchanged after this point.
+    - For every action which modifies the configuration file, update
+      the settings for each script using the insserv defaults before
+      performing the requested update.  This ensures that the
+      runlevel configuration is always up to date with the current
+      script dependencies.  The effect of this policy is that
+      update-rc.d is really only enabling and disabling services by
+      adding and removing them from runlevel.conf; everything else
+      is effectively delegated to insserv and LSB dependencies.
+    - The code to modify the runlevel.conf has been made into a
+      shell function in order to allow it to be reused.  The first
+      argument is the action to perform (add or remove).
+    - start and stop runlevels for a given script are put onto
+      separate lines, because it's very unlikely the numbers will
+      ever be the same.
+    - Added insserv2file.sh.  This is like rclink2file.sh, but
+      instead of converting the /etc/rc?.d links to
+      /etc/runlevel.conf, it uses the output of insserv -s.
+  * Removed long obsolete logic (prior to oldstable) from maintainer
+    scripts, which is no longer useful for upgrades.
+
+ -- Roger Leigh <rleigh@debian.org>  Fri, 29 Jun 2012 19:59:06 +0100
+
 file-rc (0.8.12) unstable; urgency=low
 
   * New maintainer (Closes: #539609)

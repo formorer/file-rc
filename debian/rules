@@ -33,7 +33,7 @@ install: build
 	$(installbin) rc rcS $(debroot)/etc/init.d/
 	$(installdoc) rc.README $(debroot)/etc/init.d/README
 	$(installbin) update-rc.d invoke-rc.d $(debroot)/usr/sbin/
-	$(installbin) rclink2file.sh rcfile2link.sh \
+	$(installbin) insserv2file.sh rclink2file.sh rcfile2link.sh \
 		$(debroot)/usr/share/file-rc/
 	$(installdoc) debian/overrides.lintian \
 		$(debroot)/usr/share/lintian/overrides/file-rc

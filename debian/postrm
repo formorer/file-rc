@@ -27,7 +27,7 @@ case "$1" in
 		ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/update-rc.d
 	fi
 	if [ ! -e /usr/sbin/invoke-rc.d ] ; then
-		ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/invoke-rc.d  
+		ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/invoke-rc.d
 	fi
     ;;
 

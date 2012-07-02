@@ -1,0 +1,21 @@
+file-rc (0.8.13) UNRELEASED; urgency=low
+
+  * file-rc now uses LSB dependency information for obtaining the
+    sequence numbers and runlevels when running update-rc.d, rather
+    than using hardcoded static ordering.  This has a number of
+    implications:
+    - The ordering of the scripts is based upon the dependency
+      information, and if a package is installed or removed, this can
+      result in the sequence numbers for the scripts to be recomputed.
+    - This means that the sequence numbers and runlevels in
+      /etc/runlevel.conf will be rewritten and will not preserve
+      manual changes made by the admin.  Editing the numbers in this
+      file no longer makes sense: if these values need to be changed,
+      edit the LSB header in the init script and run
+        update-rc.d scriptname defaults
+      to regenerate the file with the correct numbers.
+    - On upgrade, the existing configuration will be replaced by
+      numbers obtained from the output of insserv -s.  "insserv -s" is
+      used to obtain all script dependency information.
+
+ -- Roger Leigh <rleigh@debian.org>  Sat, 30 Jun 2012 14:02:16 +0100

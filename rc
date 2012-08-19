@@ -6,6 +6,13 @@
 # Misc fixes by Tom Lees <tom@lpsg.demon.co.uk>.
 # Misc improvements and code rewrite by Martin Schulze <joey@debian.org>
 # Misc improvements by Roland Rosenfeld <roland@spinnaker.de>
+# Partial rewrite by Alexander Wirt <formorer@debian.org>
+#
+#   Copyright (c) 1998  Martin Schulze <joey@debian.org>
+#                 1998  Winfried Trümper <winni@xpilot.org>
+#                 1998  Miquel van Smoorenburg <miquels@cistron.nl>
+#            1999-2000  Roland Rosenfeld <roland@spinnaker.de>
+#                 2010  Alexander Wirt <formorer@formorer.de>
 #
 # Unlike traditional implementations it avoids the messy scheme with
 # expressing the setup through links but reads a central config file
@@ -18,6 +25,12 @@
 # (it is only executed to switch it off if necessary).
 #
 
+# 
+# This scripts accept to different parameters, -v and -d. Please don't mix them
+# -v means some verbose output during operations 
+# -d means the same output, but also rc is doing a dry-run and does not try to 
+#    start or stop anything. 
+#
 # The following section is taken from the original rc with slight
 # modifications.
 
@@ -32,6 +45,14 @@ if [ "$1" = "-d" ]
 then
     debug=1
     shift
+fi
+
+verbose=0 
+if [ "$1" = "-v" ]
+then
+	verbose=1
+	debug=1
+	shift
 fi
 
 # Is this done because RUNLEVEL and PREVLEVEL could be read-only?
@@ -227,7 +248,9 @@ do
     [ "$ON_LEVELS" != "-" ] && element "$runlevel" in "$ON_LEVELS" \
 	&& STARTLIST=`pushlevel $SORT_NO:$CMD $ON_LEVELS $STARTLIST`
 
-    element "$runlevel" in "$OFF_LEVELS" && STOPLIST="$STOPLIST$SORT_NO:$CMD "
+    if ! element "$prevlevel" in "$OFF_LEVELS"; then
+	    element "$runlevel" in "$OFF_LEVELS" && STOPLIST="$STOPLIST$SORT_NO:$CMD "
+    fi
 
 done < $CFGFILE
 
@@ -249,7 +272,6 @@ do
       if [ $STOP_NUM -eq $x$y ]
       then
         CMD=${script#*:}
-        echo "prev: $prevlevel"
         if [ "$prevlevel" != "N" ]
         then
           case "$CMD" in
@@ -296,9 +318,10 @@ do
 done
 
 # Execute the commands collected above
-if [ $debug -eq 1 ]
+if test $debug -eq 1 && test $verbose -eq 0 
 then
     echo "$CMDLIST"
 else
+    test $verbose -eq 1 && echo "$CMDLIST" 
     (trap - INT QUIT TSTP; sh -c "$CMDLIST")
 fi

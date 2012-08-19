@@ -5,8 +5,7 @@
 #                 1998  Winfried Trümper <winni@xpilot.org>
 #                 1998  Miquel van Smoorenburg <miquels@cistron.nl>
 #            1999-2000  Roland Rosenfeld <roland@spinnaker.de>
-#
-#   $Id: rcS,v 1.12 2006-07-03 16:02:10 roland Exp $
+#	     	  2010  Alexander Wirt <formorer@formorer.de>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -102,14 +101,30 @@ do
       # continue only if CMD was not started in previous runlevel
     if element "$runlevel" in "$ON_LEVELS"
     then
-	# append CMD to the list of
-	case "$CMD" in
-	*.sh)	CMDLIST="$CMDLIST; (set -- start; . $CMD)" ;;
-	*)	[ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD start" ;;
-	esac
+			STARTS="$STARTS $SORT_NO:$CMD" 
     fi
 
 done < $CFGFILE
+
+for x in 0 1 2 3 4 5 6 7 8 9
+do
+	for y in 0 1 2 3 4 5 6 7 8 9
+	do
+		for entry in $STARTS 
+		do
+			SORT_NUM=${entry%%:*}
+			CMD=${entry#*:}
+			if [ $SORT_NUM -eq $x$y ]
+			then
+        			# append CMD to the list of
+        			case "$CMD" in
+        				*.sh)  CMDLIST="$CMDLIST; (set -- start; . $CMD)" ;;
+        				*)     [ -x "$CMD" ] && CMDLIST="$CMDLIST; $CMD start" ;;
+        			esac
+			fi
+		done
+	done
+done
 
 # Execute the commands collected above
 (trap - INT QUIT TSTP; sh -c "$CMDLIST")

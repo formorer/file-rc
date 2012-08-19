@@ -3,14 +3,15 @@ Section: admin
 Priority: extra
 Maintainer: file-rc maintainers <file-rc-users@lists.alioth.debian.org>
 Uploaders: Alexander Wirt <formorer@debian.org>, Michael Prokop <mika@debian.org>
-Standards-Version: 3.9.3
+Standards-Version: 3.8.4
 Build-Depends: debhelper (>= 5)
 
 Package: file-rc
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, insserv (>= 1.14.0-4)
 Conflicts: ash (<< 0.3.5-1)
 Replaces: sysv-rc, sysvinit (<< 2.85-3)
+Breaks: insserv (<< 1.14.0-4)
 Description: Alternative boot mechanism using a single configuration file
  This package provides an alternative mechanism to boot the system, to
  shut it down and to change runlevels.  The /etc/rc?.d/* links will be

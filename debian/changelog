@@ -1,5 +1,13 @@
-file-rc (0.8.13) UNRELEASED; urgency=low
+file-rc (0.8.14) unstable; urgency=low
 
+  * Depend on insserv, this prevents upgrade problems with systems
+    that don't have insserv installed before. (Closes: #684994)
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 19 Aug 2012 20:56:18 +0200
+
+file-rc (0.8.13) unstable; urgency=low
+
+  [ Roger Leigh ]
   * Use insserv for runlevel defaults rather than the arguments
     provided to update-rc.d.  The following changes have been made to
     update-rc.d:
@@ -28,11 +36,12 @@ file-rc (0.8.13) UNRELEASED; urgency=low
   * Removed long obsolete logic (prior to oldstable) from maintainer
     scripts, which is no longer useful for upgrades.
 
- -- Roger Leigh <rleigh@debian.org>  Fri, 29 Jun 2012 19:59:06 +0100
+ -- Alexander Wirt <formorer@debian.org>  Mon, 30 Jul 2012 07:49:19 +0200
 
 file-rc (0.8.12) unstable; urgency=low
 
   * New maintainer (Closes: #539609)
+  * Use debian source format 1.0
   * Add better debugging support
   * Bump standards version (no further changes)
   * Remove linda overrides
@@ -42,8 +51,15 @@ file-rc (0.8.12) unstable; urgency=low
     during boot (Closes: #505552). Thanks to Ken Bloom for the patch
   * Only create symlinks im post-rm if programs are missing (Closes: #543780)
     Thanks Petter Reinholdtsen for the patch
+  * Only stop services if they were started in PREVLEVEL (Closes: #202294) 
+    Thanks to Jörg Sommer for the patch
+  * Remove link to non-existant policy-rc.d manpage. 
+    /usr/share/doc/file-rc/README.policy-rc.d.gz is the official source 
+    (Closes: #489488)
+  * Add -v as optional parameter, which in contrary to -d really executes 
+    the commands (Closes: #399666)
 
- -- Alexander Wirt <formorer@debian.org>  Sun, 07 Mar 2010 12:29:04 +0100
+ -- Alexander Wirt <formorer@debian.org>  Wed, 07 Apr 2010 21:26:18 +0200
 
 file-rc (0.8.11) unstable; urgency=low
 

@@ -3,8 +3,11 @@ file handling.
 
 This package was originally put together by Tom Lees
 <tom@lpsg.demon.co.uk>, than taken over by Martin Schulze
-<joey@debian.org> and now by Roland Rosenfeld <roland@debian.org>,
+<joey@debian.org>, then by Roland Rosenfeld <roland@debian.org>,
 from sources obtained from a posting to debian-devel.
+
+In 2010 Alexander Wirt <formorer@debian.org> and Michael Prokop
+<mika@debian.org> took over maintenance. 
 
 The original package (named r2d2) was written by Winfried Truemper
 <winni@xpilot.org>.  It was available in the past on

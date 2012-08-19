@@ -1,4 +1,4 @@
-file-rc (0.8.13) UNRELEASED; urgency=low
+file-rc (0.8.13) unstable; urgency=low
 
   * file-rc now uses LSB dependency information for obtaining the
     sequence numbers and runlevels when running update-rc.d, rather

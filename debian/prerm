@@ -16,12 +16,32 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# Make sure insserv is in path
+PATH=/sbin:$PATH
 
 case "$1" in
     remove)
+        echo "info: restoring rc.d links" 1>&2
+        /usr/share/file-rc/rcfile2link.sh
+        echo "info: running insserv" 1>&2
+        if insserv -v ; then
+            echo "success: Enabled dependency based boot system." 1>&2
+        else
+            echo "error: Something failed while migrating." 1>&2
+            cat 1>&2 <<EOF
+
+error: Unable to migrate to dependency based boot sequencing.
+
+See http://wiki.debian.org/LSBInitScripts/DependencyBasedBoot for
+more information about dependency based boot sequencing. To
+reattempt the migration process run 'insserv -v' after correcting
+the cause of the problem, and then retry removing file-rc.
+
+EOF
+        fi
         ;;
     upgrade|deconfigure)
-	;;
+        ;;
     failed-upgrade)
         ;;
     *)

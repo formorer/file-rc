@@ -1,3 +1,16 @@
+file-rc (0.8.15) unstable; urgency=low
+
+  [ Michael Stapelberg ]
+  * Call rcfile2link.sh followed by insserv to properly restore links
+    when removing file-rc. (Closes: #688140)
+
+  [ Roger Leigh ]
+  * When migrating to dependency-based boot in the prerm, log
+    what's happening, and if insserv fails issue an informative
+    message (taken from sysv-rc postinst).
+
+ -- Roger Leigh <rleigh@debian.org>  Wed, 20 Mar 2013 21:31:30 +0000
+
 file-rc (0.8.14) unstable; urgency=low
 
   * Depend on insserv, this prevents upgrade problems with systems

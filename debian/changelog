@@ -1,3 +1,12 @@
+file-rc (0.8.16) unstable; urgency=low
+
+  [ Colin Watson ]
+  * Add upstart support to invoke-rc.d, per the policy discussion in bug
+    #591791.  This is a straight port of Steve Langasek's implementation in
+    sysv-rc.
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 24 May 2013 08:02:38 +0200
+
 file-rc (0.8.15) unstable; urgency=low
 
   [ Michael Stapelberg ]

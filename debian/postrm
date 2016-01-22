@@ -17,12 +17,38 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# see #812337 + #285835, #805487
+undivert() {
+  dpkg-divert --package file-rc --remove --rename \
+    --divert /usr/sbin/update-rc.d.init-system-helpers /usr/sbin/update-rc.d
+
+  dpkg-divert --package file-rc --remove --rename \
+    --divert /usr/sbin/invoke-rc.d.init-system-helpers /usr/sbin/invoke-rc.d
+
+  dpkg-divert --package file-rc --remove --rename \
+    --divert /usr/share/man/man8/update-rc.d.8.gz.init-system-helpers /usr/share/man/man8/update-rc.d.8.gz
+
+  dpkg-divert --package file-rc --remove --rename \
+    --divert /usr/share/man/man8/invoke-rc.d.8.gz.init-system-helpers /usr/share/man/man8/invoke-rc.d.8.gz
+}
 
 case "$1" in
-    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    upgrade|failed-upgrade)
+    ;;
+
+    abort-upgrade)
+      if dpkg --compare-versions "$2" lt 0.8.17 ; then
+        undivert
+      fi
+    ;;
+
+    abort-install|disappear)
+        undivert
     ;;
 
     remove)
+        undivert
+
 	if [ ! -e /usr/sbin/update-rc.d ] ; then
 		ln -sf /usr/share/sysvinit/update-rc.d /usr/sbin/update-rc.d
 	fi

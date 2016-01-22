@@ -14,12 +14,31 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+# see #812337 + #285835, #805487
+divert() {
+
+  dpkg-divert --package file-rc --add --rename \
+    --divert /usr/sbin/update-rc.d.init-system-helpers /usr/sbin/update-rc.d
+
+  dpkg-divert --package file-rc --add --rename \
+    --divert /usr/sbin/invoke-rc.d.init-system-helpers /usr/sbin/invoke-rc.d
+
+  dpkg-divert --package file-rc --add --rename \
+    --divert /usr/share/man/man8/update-rc.d.8.gz.init-system-helpers /usr/share/man/man8/update-rc.d.8.gz
+
+  dpkg-divert --package file-rc --add --rename \
+    --divert /usr/share/man/man8/invoke-rc.d.8.gz.init-system-helpers /usr/share/man/man8/invoke-rc.d.8.gz
+}
 
 case "$1" in
     install)
+      divert
     ;;
 
     upgrade)
+      if dpkg --compare-versions "$2" lt 0.8.17 ; then
+        divert
+      fi
     ;;
 
     abort-upgrade)

@@ -1,3 +1,15 @@
+file-rc (0.8.17) unstable; urgency=medium
+
+  * [96c8d0d] divert update-rc.d + invoke-rc.d files to cooperate with
+    init-system-helpers >=1.25. Thanks to Andreas Henriksson
+    <andreas@fatal.se> + Martin Pitt <mpitt@debian.org> for feedback
+    (Closes: #285835, #812337)
+  * [c0bad08] Drop Replaces, conflict with (old) sysv-rc + openrc
+    packages. Thanks to Andreas Henriksson <andreas@fatal.se> for the
+    patch and feedback
+
+ -- Michael Prokop <mika@debian.org>  Mon, 25 Jan 2016 14:28:50 +0100
+
 file-rc (0.8.16) unstable; urgency=low
 
   [ Colin Watson ]

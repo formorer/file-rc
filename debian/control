@@ -8,8 +8,8 @@ Build-Depends: debhelper (>= 5)
 
 Package: file-rc
 Architecture: all
-Depends: ${misc:Depends}, insserv (>= 1.14.0-4)
-Conflicts: ash (<< 0.3.5-1), sysv-rc (<< 2.88dsf-59.3~), openrc
+Depends: ${misc:Depends}, insserv (>= 1.14.0-4), sysvinit-core
+Conflicts: ash (<< 0.3.5-1), sysv-rc, openrc
 Breaks: insserv (<< 1.14.0-4)
 Description: Alternative boot mechanism using a single configuration file
  This package provides an alternative mechanism to boot the system, to

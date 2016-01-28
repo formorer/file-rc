@@ -1,3 +1,11 @@
+file-rc (0.8.18) unstable; urgency=medium
+
+  * [3e4be87] Conflict with unversioned sysv-rc + Depend on sysvinit-core.
+    Thanks to Andreas Henriksson <andreas@fatal.se> + Martin Pitt
+    <mpitt@debian.org> for feedback (Closes: #812970, #812971)
+
+ -- Michael Prokop <mika@debian.org>  Thu, 28 Jan 2016 12:27:57 +0100
+
 file-rc (0.8.17) unstable; urgency=medium
 
   * [96c8d0d] divert update-rc.d + invoke-rc.d files to cooperate with
